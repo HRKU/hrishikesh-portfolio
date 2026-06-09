@@ -9,8 +9,7 @@ const INITIAL_MESSAGE = {
   content: "Hi! I'm the AI representation of Hrishikesh. I can answer questions about his experience, tech stack, and why he'd be a great fit for your team!"
 };
 
-export default function FloatingChat() {
-  const [isOpen, setIsOpen] = useState(false);
+export default function FloatingChat({ isOpen, setIsOpen }) {
   const [messages, setMessages] = useState([INITIAL_MESSAGE]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);

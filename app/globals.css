@@ -115,7 +115,59 @@ h2::after {
   display: inline-block;
 }
 
-/* Terminal Mac buttons */
+/* ── Tech Background ─────────────────────────────────── */
+
+.tech-grid-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(0, 240, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 240, 255, 0.028) 1px, transparent 1px);
+  background-size: 64px 64px;
+  animation: gridPulse 8s ease-in-out infinite;
+}
+
+@keyframes gridPulse {
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1;   }
+}
+
+.tech-symbols {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.tech-symbol {
+  position: absolute;
+  font-family: 'Space Mono', 'Courier New', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  opacity: 0.18;
+  animation: symbolFloat ease-in-out infinite;
+  user-select: none;
+}
+
+@keyframes symbolFloat {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+    opacity: 0.12;
+  }
+  33% {
+    transform: translateY(-18px) scale(1.05);
+    opacity: 0.28;
+  }
+  66% {
+    transform: translateY(-8px) scale(0.97);
+    opacity: 0.2;
+  }
+}
+
+/* ── Terminal Mac buttons ───────────────────────────── */
 .mac-btn {
   width: 12px;
   height: 12px;

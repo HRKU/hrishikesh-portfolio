@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 
-export default function Hero() {
+export default function Hero({ onOpenChat }) {
   return (
     <section className="container" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', paddingTop: '5rem' }}>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center', width: '100%' }}>
@@ -25,18 +25,20 @@ export default function Hero() {
           </p>
           
           <div style={{ display: 'flex', gap: '1.5rem' }}>
-            <a href="#chat" style={{ 
-              padding: '1.2rem 2.5rem', 
-              background: 'var(--text-main)', 
-              color: 'var(--bg-color)', 
-              borderRadius: '50px', 
-              fontWeight: '700', 
+            <button onClick={onOpenChat} style={{
+              padding: '1.2rem 2.5rem',
+              background: 'var(--text-main)',
+              color: 'var(--bg-color)',
+              borderRadius: '50px',
+              fontWeight: '700',
               letterSpacing: '1px',
               transition: 'all 0.3s ease',
-              boxShadow: '0 4px 15px rgba(255,255,255,0.1)'
+              boxShadow: '0 4px 15px rgba(255,255,255,0.1)',
+              border: 'none',
+              cursor: 'pointer'
             }}>
               Chat with my AI
-            </a>
+            </button>
             <a href="#projects" style={{ 
               padding: '1.2rem 2.5rem', 
               background: 'transparent', 
