@@ -1,0 +1,122 @@
+# Netlify Configuration for Portfolio App with Next.js
+# Deploy: next build + pnpm (using Netlify's Next.js plugin)
+
+[build]
+# Build command for Next.js + pnpm
+command = "pnpm install && pnpm run build"
+
+# Output directory (Next.js standalone export)
+publish = ".next/public"
+
+# Node.js version
+environment = { NODE_VERSION = "20", NODE_ENV = "production" }
+
+# Functions configuration
+functions = "netlify/functions"
+
+[build.environment]
+  # Prevent pnpm prompting for build scripts
+  PNPM_IGNORE_SCRIPTS = "true"
+
+# ─── Edge Function Configuration ─────────────────────────────────────────────
+[functions]
+  # Use esbuild for faster function bundling
+  node_bundler = "esbuild"
+
+  # Set function memory if needed (default: 1024 MB)
+  memory = 1024
+  timeout = 30  # seconds
+
+# ─── Redirects & Rewrites ────────────────────────────────────────────────────
+# Route all API calls to Next.js serverless functions
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/api"
+  status = 200
+
+# SPA fallback: route all unmatched paths to index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  condition = { Status = 404, NOT = { path = "/api/*" } }
+
+# ─── HTTP Security Headers ──────────────────────────────────────────────────
+[[headers]]
+  for = "/*"
+  
+  [headers.values]
+    # Prevent MIME type sniffing
+    X-Content-Type-Options = "nosniff"
+    
+    # Prevent clickjacking attacks
+    X-Frame-Options = "SAMEORIGIN"
+    
+    # Enable browser XSS protection (legacy, modern CSP preferred)
+    X-XSS-Protection = "1; mode=block"
+    
+    # Control referrer information
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    
+    # Permissions Policy (formerly Feature Policy)
+    Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    
+    # Content Security Policy (allows external Google Fonts)
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.groq.com; frame-src 'none';"
+
+# ─── Cache Rules ─────────────────────────────────────────────────────────────
+[[headers]]
+  for = "/api/*"
+  
+  [headers.values]
+    # No caching for API responses (dynamic content)
+    Cache-Control = "no-cache, no-store, must-revalidate, max-age=0"
+    Pragma = "no-cache"
+    Expires = "0"
+
+[[headers]]
+  for = "/_next/static/*"
+  
+  [headers.values]
+    # Cache immutable assets for 1 year
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/static/*"
+  
+  [headers.values]
+    # Cache static assets for 1 month
+    Cache-Control = "public, max-age=2592000"
+
+# ─── Error Pages ────────────────────────────────────────────────────────────
+# Custom 404 page
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
+  force = false
+  condition = { Status = [404] }
+
+# ─── Monitoring & Analytics ─────────────────────────────────────────────────
+[analytics]
+  enabled = true  # Enable Netlify Analytics
+
+# ─── Next.js Plugin Configuration ───────────────────────────────────────────
+# Netlify automatically detects next.config.mjs and uses the Next.js plugin
+# No additional plugin section needed
+
+# ─── Environment Variables ──────────────────────────────────────────────────
+# Add these in Netlify Dashboard → Site Settings → Environment Variables
+# GROQ_API_KEY = (your rotated key)
+# NODE_ENV = production
+# VERCEL_ENV = production
+
+# ─── Context-Specific Settings (Optional) ─────────────────────────────────
+# [context.production]
+#   command = "pnpm run build"
+#   
+# [context.preview]
+#   command = "pnpm run build"
+#
+# [context.deploy-preview]
+#   command = "pnpm run build"
