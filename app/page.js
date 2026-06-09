@@ -4,6 +4,7 @@ import Hero from '@/components/Hero';
 import Skills from '@/components/Skills';
 import Experience from '@/components/Experience';
 import Projects from '@/components/Projects';
+import Arsenal from '@/components/Arsenal';
 import FloatingChat from '@/components/FloatingChat';
 
 export default function Home() {
@@ -15,6 +16,7 @@ export default function Home() {
       <Skills />
       <Experience />
       <Projects />
+      <Arsenal />
       <FloatingChat isOpen={chatOpen} setIsOpen={setChatOpen} />
     </main>
   );
