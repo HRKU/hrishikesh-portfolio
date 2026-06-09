@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import Groq from "groq-sdk";
+import { logRequest, updateUsage, getUsage } from './utils/logger';
+import { getChatCompletion } from './utils/modelSelector';
+import { getCachedAnswer, setCachedAnswer } from './utils/cache';
 
 const rateLimitMap = new Map();
 const RATE_LIMIT = 10; 
@@ -30,12 +33,15 @@ export async function POST(req) {
     // --- 2. Parse Request ---
     const { messages } = await req.json();
     
+    // Truncate conversation to last 10 messages for token control
+    const truncatedMessages = messages.slice(-10);
+
     // Structured Logging: Incoming Request
     console.log(`\n=== [CHATBOT REQUEST] ===`);
     console.log(`[Time]: ${new Date().toISOString()}`);
     console.log(`[IP Address]: ${ip}`);
-    console.log(`[Conversation Turns]: ${messages.length}`);
-    console.log(`[Last Message]: "${messages[messages.length - 1]?.content}"`);
+    console.log(`[Conversation Turns]: ${truncatedMessages.length}`);
+    console.log(`[Last Message]: "${truncatedMessages[truncatedMessages.length - 1]?.content}"`);
     console.log(`=========================\n`);
 
     const apiKey = process.env.groq_api_key || process.env.GROQ_API_KEY;
@@ -71,22 +77,54 @@ export async function POST(req) {
       Keep your answers short (1-3 sentences) unless asked for details.
     `;
 
-    // --- 4. Call LLM ---
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        { role: "system", content: systemPrompt },
-        ...messages
-      ],
-      model: "llama-3.1-8b-instant",
-      temperature: 0.5,
-      max_tokens: 1024,
-    });
+    // --- 4. Call LLM with fallback & caching ---
+    const userPrompt = truncatedMessages[truncatedMessages.length - 1]?.content?.trim();
+    // Check cache for static questions
+    const staticAnswers = {
+      "who is hrishikesh?": "Hrishikesh Upadhyaya is a Full Stack & AI Developer based in Pune, India, specializing in Next.js, AI agents, and cloud architectures.",
+      "tell me about run2feed": "Run2Feed is a marathon platform built with Next.js, Docker, and Easebuzz payment integration, enabling seamless race registrations and results.",
+      "what technologies do you use?": "The stack includes JavaScript/TypeScript, Next.js, React, Node.js, Express, MongoDB, SQL, Azure OpenAI, AutoGen, RAG pipelines, Docker, and CI/CD.",
+      "show your projects": "Key projects: Run2Feed Marathon Platform, Ticketing System, AI Chatbot with multi‑agent architecture, and several fintech modules.",
+    };
+    if (userPrompt && staticAnswers[userPrompt.toLowerCase()]) {
+      const cached = getCachedAnswer(userPrompt) || staticAnswers[userPrompt.toLowerCase()];
+      // Store in cache for future calls
+      setCachedAnswer(userPrompt, cached);
+      const usage = { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 };
+      const duration = Date.now() - startTime;
+      logRequest({ ip, model: "cache", promptTokens: 0, completionTokens: 0, totalTokens: 0, latencyMs: duration, fallback: false, errorReason: null });
+      updateUsage({ totalTokens: 0, fallback: false });
+      return NextResponse.json({ reply: cached });
+    }
+    // Define fallback model order
+    const modelOrder = [
+      "meta-llama/llama-4-scout-17b-16e-instruct",
+      "qwen/qwen3-32b",
+      "llama-3.3-70b-versatile",
+      "llama-3.1-8b-instant",
+    ];
+    const { response: chatCompletion, modelUsed, fallback } = await getChatCompletion(groq, [
+      { role: "system", content: systemPrompt },
+      ...truncatedMessages,
+    ], modelOrder);
 
     const reply = chatCompletion.choices[0]?.message?.content || "I couldn't process that right now.";
     const usage = chatCompletion.usage;
     const duration = Date.now() - startTime;
 
     // Structured Logging: Usage & Response
+    logRequest({
+      ip,
+      model: modelUsed,
+      promptTokens: usage?.prompt_tokens,
+      completionTokens: usage?.completion_tokens,
+      totalTokens: usage?.total_tokens,
+      latencyMs: duration,
+      fallback,
+      errorReason: null,
+    });
+    updateUsage({ totalTokens: usage?.total_tokens || 0, fallback });
+
     console.log(`\n=== [CHATBOT RESPONSE] ===`);
     console.log(`[Status]: Success (${duration}ms)`);
     console.log(`[Tokens]: Prompt (${usage?.prompt_tokens}), Completion (${usage?.completion_tokens}), Total (${usage?.total_tokens})`);
@@ -94,6 +132,18 @@ export async function POST(req) {
 
     return NextResponse.json({ reply });
   } catch (error) {
+    const errorDuration = Date.now() - startTime;
+    logRequest({
+      ip,
+      model: "unknown",
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+      latencyMs: errorDuration,
+      fallback: false,
+      errorReason: error.message,
+    });
+    updateUsage({ totalTokens: 0, fallback: false });
     console.error("\n=== [CHATBOT ERROR] ===");
     console.error(`[IP Address]: ${ip}`);
     console.error(`[Message]:`, error.message);
