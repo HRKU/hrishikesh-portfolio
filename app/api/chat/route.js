@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
-import { logRequest, updateUsage } from './utils/logger';
+import { logRequest, generateRequestId, runSecurityChecks, updateUsage } from './utils/logger';
 import { getChatCompletion } from './utils/modelSelector';
 import { getCachedAnswer, setCachedAnswer, cleanCache } from './utils/cache';
 
@@ -79,6 +79,7 @@ function evictStaleRateLimitEntries(now) {
 // ─── Route handler ─────────────────────────────────────────────────────────────
 export async function POST(req) {
   const startTime = Date.now();
+  const requestId = generateRequestId();
   const ip = req.headers.get('x-forwarded-for') || 'anonymous';
 
   // Guard: API key must be present (fail fast, avoid confusing downstream errors)
@@ -98,6 +99,20 @@ export async function POST(req) {
     // --- 2. Rate limiting ---
     if (checkRateLimit(ip, startTime)) {
       console.warn(`[RATE LIMIT] IP: ${ip}`);
+      const latencyMs = Date.now() - startTime;
+      logRequest({
+        requestId,
+        ip,
+        model: 'rate_limit',
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0,
+        latencyMs,
+        fallback: false,
+        errorReason: 'Rate limit exceeded',
+        providerStatus: 'rejected',
+        cacheHit: false,
+      });
       return NextResponse.json({ error: 'Too many requests. Please wait a moment.' }, { status: 429 });
     }
 
@@ -107,10 +122,38 @@ export async function POST(req) {
       const body = await req.json();
       messages = body?.messages;
     } catch {
+      const latencyMs = Date.now() - startTime;
+      logRequest({
+        requestId,
+        ip,
+        model: 'parser',
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0,
+        latencyMs,
+        fallback: false,
+        errorReason: 'Invalid JSON body',
+        providerStatus: 'rejected',
+        cacheHit: false,
+      });
       return NextResponse.json({ error: 'Invalid JSON body.' }, { status: 400 });
     }
 
     if (!Array.isArray(messages) || messages.length === 0) {
+      const latencyMs = Date.now() - startTime;
+      logRequest({
+        requestId,
+        ip,
+        model: 'validator',
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0,
+        latencyMs,
+        fallback: false,
+        errorReason: 'messages must be a non-empty array',
+        providerStatus: 'rejected',
+        cacheHit: false,
+      });
       return NextResponse.json({ error: 'messages must be a non-empty array.' }, { status: 400 });
     }
 
@@ -119,25 +162,65 @@ export async function POST(req) {
     const userPrompt = truncatedMessages.at(-1)?.content?.trim() ?? '';
 
     console.log('[CHATBOT REQUEST]', JSON.stringify({
+      requestId,
       timestamp: new Date().toISOString(),
       ip,
       turns: truncatedMessages.length,
       lastMessage: userPrompt.slice(0, 100), // trim to avoid log bloat
     }));
 
-    // --- 4. Cache check ---
+    // --- 4. Security checks (PII, prompt injection, SQL injection) ---
+    const securityCheck = runSecurityChecks(userPrompt);
+    if (securityCheck.triggered) {
+      const latencyMs = Date.now() - startTime;
+      console.warn(`[SECURITY_VIOLATION] requestId: ${requestId}, IP: ${ip}, Reason: ${securityCheck.reason}`);
+      logRequest({
+        requestId,
+        ip,
+        model: 'security',
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0,
+        latencyMs,
+        fallback: false,
+        errorReason: 'Security check failed',
+        providerStatus: 'blocked',
+        cacheHit: false,
+        securityTriggered: true,
+        securityReason: securityCheck.reason,
+      });
+      return NextResponse.json(
+        { error: 'Your request was blocked for security reasons. Please try with a different query.' },
+        { status: 403 }
+      );
+    }
+
+    // --- 5. Cache check ---
     const staticAnswer = STATIC_ANSWERS[userPrompt.toLowerCase()];
     if (staticAnswer) {
       const cachedReply = getCachedAnswer(userPrompt) ?? staticAnswer;
       setCachedAnswer(userPrompt, cachedReply);
       const latencyMs = Date.now() - startTime;
-      logRequest({ ip, model: 'cache', promptTokens: 0, completionTokens: 0, totalTokens: 0, latencyMs, fallback: false, errorReason: null });
+      logRequest({
+        requestId,
+        ip,
+        model: 'cache',
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0,
+        latencyMs,
+        fallback: false,
+        errorReason: null,
+        providerStatus: 'success',
+        providerModel: 'static_cache',
+        cacheHit: true,
+      });
       updateUsage({ totalTokens: 0, fallback: false });
       return NextResponse.json({ reply: cachedReply });
     }
 
-    // --- 5. LLM call with model fallback ---
-    const { response: chatCompletion, modelUsed, fallback } = await getChatCompletion(
+    // --- 6. LLM call with model fallback ---
+    const { response: chatCompletion, modelUsed, fallback, providerStatus } = await getChatCompletion(
       groq,
       [{ role: 'system', content: SYSTEM_PROMPT }, ...truncatedMessages],
       MODEL_ORDER
@@ -149,6 +232,7 @@ export async function POST(req) {
     const latencyMs = Date.now() - startTime;
 
     logRequest({
+      requestId,
       ip,
       model: modelUsed,
       promptTokens: usage?.prompt_tokens ?? 0,
@@ -157,6 +241,11 @@ export async function POST(req) {
       latencyMs,
       fallback,
       errorReason: null,
+      providerStatus: providerStatus || 'success',
+      providerModel: modelUsed,
+      cacheHit: false,
+      securityTriggered: false,
+      securityReason: null,
     });
     updateUsage({ totalTokens: usage?.total_tokens ?? 0, fallback });
 
@@ -164,9 +253,24 @@ export async function POST(req) {
 
   } catch (error) {
     const latencyMs = Date.now() - startTime;
-    logRequest({ ip, model: 'unknown', promptTokens: 0, completionTokens: 0, totalTokens: 0, latencyMs, fallback: false, errorReason: error.message });
+    logRequest({
+      requestId,
+      ip,
+      model: 'unknown',
+      promptTokens: 0,
+      completionTokens: 0,
+      totalTokens: 0,
+      latencyMs,
+      fallback: false,
+      errorReason: error.message,
+      providerStatus: 'error',
+      providerModel: null,
+      cacheHit: false,
+      securityTriggered: false,
+      securityReason: null,
+    });
     updateUsage({ totalTokens: 0, fallback: false });
-    console.error('[CHATBOT ERROR]', { ip, message: error.message });
+    console.error('[CHATBOT ERROR]', { requestId, ip, message: error.message });
     return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 }

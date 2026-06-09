@@ -1,5 +1,5 @@
 /**
- * modelSelector.js — Groq model fallback selector.
+ * modelSelector.js — Groq model fallback selector with provider status tracking.
  *
  * Tries models in order and falls back on:
  *   - HTTP 429 (Too Many Requests)
@@ -13,6 +13,7 @@
  */
 export async function getChatCompletion(groq, messages, models) {
   let lastError = null;
+  let providerStatus = 'error';
 
   for (let i = 0; i < models.length; i++) {
     const model = models[i];
@@ -28,6 +29,9 @@ export async function getChatCompletion(groq, messages, models) {
 
       if (i > 0) {
         console.warn(`[MODEL_SELECTOR] Fell back to model: ${model}`);
+        providerStatus = 'fallback';
+      } else {
+        providerStatus = 'success';
       }
 
       return {
@@ -35,6 +39,7 @@ export async function getChatCompletion(groq, messages, models) {
         modelUsed: model,
         fallback: i > 0,
         error: null,
+        providerStatus,
       };
     } catch (err) {
       // Groq SDK surfaces status on the error object directly
@@ -51,11 +56,13 @@ export async function getChatCompletion(groq, messages, models) {
 
       if (isQuotaError) {
         console.warn(`[MODEL_SELECTOR] Quota/rate-limit hit on ${model}: ${err.message}`);
+        providerStatus = 'rate_limited';
         lastError = err;
         continue; // try next model
       }
 
       // Non-quota error (bad key, network, etc.) — surface immediately
+      providerStatus = 'error';
       throw err;
     }
   }
