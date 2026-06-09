@@ -3,12 +3,19 @@ import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 
+// Defined outside component so it's not recreated on every render
+const INITIAL_MESSAGE = {
+  role: 'assistant',
+  content: "Hi! I'm the AI representation of Hrishikesh. I can answer questions about his experience, tech stack, and why he'd be a great fit for your team!"
+};
+
 export default function FloatingChat() {
   const [isOpen, setIsOpen] = useState(false);
-  const initialMessage = { role: 'assistant', content: "Hi! I'm the AI representation of Hrishikesh. I can answer questions about his experience, tech stack, and why he'd be a great fit for your team!" };
-  const [messages, setMessages] = useState([initialMessage]);
+  const [messages, setMessages] = useState([INITIAL_MESSAGE]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // Track whether the user has ever sent a message (controls starter chip visibility)
+  const [hasInteracted, setHasInteracted] = useState(false);
   const messagesEndRef = useRef(null);
 
   const starterQuestions = [
@@ -21,21 +28,25 @@ export default function FloatingChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Only scroll when messages or loading state changes — not when the panel opens/closes
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isLoading, isOpen]);
+  }, [messages, isLoading]);
 
   const clearChat = () => {
-    setMessages([initialMessage]);
+    setMessages([INITIAL_MESSAGE]);
+    setHasInteracted(false);
   };
 
   const sendMessage = async (text) => {
     if (!text.trim() || isLoading) return;
 
-    const newMessages = [...messages, { role: 'user', content: text }];
+    const userMessage = { role: 'user', content: text };
+    const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput('');
     setIsLoading(true);
+    setHasInteracted(true);
 
     try {
       const res = await fetch('/api/chat', {
@@ -44,15 +55,22 @@ export default function FloatingChat() {
         body: JSON.stringify({ messages: newMessages })
       });
 
+      if (res.status === 429) {
+        setMessages([...newMessages, { role: 'assistant', content: "I'm getting too many requests right now. Please wait a moment before trying again." }]);
+        return;
+      }
+
       if (!res.ok) {
-        if (res.status === 429) throw new Error("Rate limit exceeded.");
-        throw new Error('Failed to reach AI Core.');
+        setMessages([...newMessages, { role: 'assistant', content: "Something went wrong on my end. Please try again shortly." }]);
+        return;
       }
 
       const data = await res.json();
-      setMessages([...newMessages, { role: 'assistant', content: data.reply }]);
-    } catch (err) {
-      setMessages([...newMessages, { role: 'assistant', content: `[SYSTEM ERROR]: ${err.message}` }]);
+      const reply = data.reply?.trim() || "I couldn't generate a response. Please try again.";
+      setMessages([...newMessages, { role: 'assistant', content: reply }]);
+    } catch {
+      // Don't expose raw error messages — they can contain server internals
+      setMessages([...newMessages, { role: 'assistant', content: "Connection issue. Please check your network and try again." }]);
     } finally {
       setIsLoading(false);
     }
@@ -198,12 +216,12 @@ export default function FloatingChat() {
           <div ref={messagesEndRef} />
         </div>
         
-        {/* Starter Questions */}
-        {!isLoading && messages.length < 3 && (
+        {/* Starter Questions — shown only until the user sends their first message */}
+        {!isLoading && !hasInteracted && (
           <div style={{ padding: '0 1rem', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
             {starterQuestions.map((q, idx) => (
-              <button 
-                key={idx} 
+              <button
+                key={idx}
                 onClick={() => sendMessage(q)}
                 style={{
                   background: 'rgba(255,255,255,0.05)',
@@ -216,8 +234,6 @@ export default function FloatingChat() {
                   transition: 'background 0.2s',
                   fontFamily: 'Inter'
                 }}
-                onMouseOver={e => e.currentTarget.style.background = 'rgba(0,240,255,0.1)'}
-                onMouseOut={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
               >
                 {q}
               </button>

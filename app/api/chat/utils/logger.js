@@ -1,17 +1,52 @@
-import fs from 'fs';
-import path from 'path';
+/**
+ * logger.js — Serverless-safe structured logger for the chatbot API.
+ *
+ * WHY console.log only:
+ *   Netlify Functions and Vercel Edge/Node runtimes have READ-ONLY
+ *   filesystems. Using fs.writeFileSync / fs.appendFileSync would crash
+ *   the function at runtime. Console output is captured by both platforms
+ *   in their built-in log viewers (Netlify > Functions > Logs, Vercel > Logs).
+ *
+ *   If persistent file-based logging is needed, replace the in-memory
+ *   approach below with Netlify KV, Upstash Redis, or an external service.
+ */
 
-const LOG_DIR = path.resolve(process.cwd(), 'logs');
-const LOG_FILE = path.join(LOG_DIR, 'chat.log');
-const USAGE_FILE = path.join(LOG_DIR, 'usage.json');
+// ─── In-memory daily usage counter ──────────────────────────────────────────
+let dailyUsage = {
+  date: new Date().toISOString().slice(0, 10),
+  dailyRequests: 0,
+  dailyTokens: 0,
+  fallbackCount: 0,
+};
 
-// Ensure logs directory exists
-if (!fs.existsSync(LOG_DIR)) {
-  fs.mkdirSync(LOG_DIR, { recursive: true });
+function resetIfNewDay() {
+  const today = new Date().toISOString().slice(0, 10);
+  if (dailyUsage.date !== today) {
+    dailyUsage = {
+      date: today,
+      dailyRequests: 0,
+      dailyTokens: 0,
+      fallbackCount: 0,
+    };
+  }
 }
 
-/** Write a JSON line to the chat log */
-export function logRequest({ ip, model, promptTokens, completionTokens, totalTokens, latencyMs, fallback, errorReason }) {
+// ─── Public API ──────────────────────────────────────────────────────────────
+
+/**
+ * Log a chatbot request/response entry as structured JSON to stdout.
+ * Netlify & Vercel capture all stdout in their log viewers.
+ */
+export function logRequest({
+  ip,
+  model,
+  promptTokens,
+  completionTokens,
+  totalTokens,
+  latencyMs,
+  fallback,
+  errorReason,
+}) {
   const entry = {
     timestamp: new Date().toISOString(),
     ip,
@@ -20,48 +55,28 @@ export function logRequest({ ip, model, promptTokens, completionTokens, totalTok
     completionTokens,
     totalTokens,
     latencyMs,
-    fallback,
-    errorReason,
+    fallback: !!fallback,
+    errorReason: errorReason || null,
   };
-  fs.appendFileSync(LOG_FILE, JSON.stringify(entry) + '\n');
+  // Prefix makes it easy to grep in the Netlify/Vercel log viewer
+  console.log('[CHATBOT_LOG]', JSON.stringify(entry));
 }
 
-/** Load current usage stats (or initialize) */
-function loadUsage() {
-  if (fs.existsSync(USAGE_FILE)) {
-    try {
-      return JSON.parse(fs.readFileSync(USAGE_FILE, 'utf-8'));
-    } catch (_) {
-      // corrupted file – reset
-    }
-  }
-  const today = new Date().toISOString().slice(0, 10);
-  return { date: today, dailyRequests: 0, dailyTokens: 0, fallbackCount: 0 };
+/**
+ * Update in-memory daily usage counters.
+ * Counters reset automatically at UTC midnight.
+ */
+export function updateUsage({ totalTokens = 0, fallback = false }) {
+  resetIfNewDay();
+  dailyUsage.dailyRequests += 1;
+  dailyUsage.dailyTokens += totalTokens;
+  if (fallback) dailyUsage.fallbackCount += 1;
 }
 
-/** Save usage stats */
-function saveUsage(data) {
-  fs.writeFileSync(USAGE_FILE, JSON.stringify(data, null, 2));
-}
-
-/** Update usage counters */
-export function updateUsage({ totalTokens, fallback }) {
-  const usage = loadUsage();
-  const today = new Date().toISOString().slice(0, 10);
-  if (usage.date !== today) {
-    // Reset for new day
-    usage.date = today;
-    usage.dailyRequests = 0;
-    usage.dailyTokens = 0;
-    usage.fallbackCount = 0;
-  }
-  usage.dailyRequests += 1;
-  usage.dailyTokens += totalTokens || 0;
-  if (fallback) usage.fallbackCount += 1;
-  saveUsage(usage);
-}
-
-/** Retrieve current usage (read‑only) */
+/**
+ * Read the current daily usage snapshot (useful for /api/usage endpoint).
+ */
 export function getUsage() {
-  return loadUsage();
+  resetIfNewDay();
+  return { ...dailyUsage };
 }

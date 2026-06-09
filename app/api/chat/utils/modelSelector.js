@@ -1,45 +1,67 @@
 /**
- * Model selector with automatic fallback on quota errors.
+ * modelSelector.js — Groq model fallback selector.
  *
- * Usage:
- *   const models = [
- *     'meta-llama/llama-4-scout-17b-16e-instruct',
- *     'qwen/qwen3-32b',
- *     'llama-3.3-70b-versatile',
- *     'llama-3.1-8b-instant',
- *   ];
- *   const { response, modelUsed, fallback } = await getChatCompletion(groq, messages, models);
+ * Tries models in order and falls back on:
+ *   - HTTP 429 (Too Many Requests)
+ *   - Groq error code 'rate_limit_exceeded' or 'quota_exceeded'
+ *
+ * All other errors are re-thrown immediately so genuine failures
+ * (bad API key, network issues) are surfaced clearly.
+ *
+ * Future extension: pass a `onFallback(fromModel, toModel, reason)` callback
+ * to support RAG-aware fallback or conversation summarisation before retrying.
  */
 export async function getChatCompletion(groq, messages, models) {
   let lastError = null;
+
   for (let i = 0; i < models.length; i++) {
     const model = models[i];
+    console.log(`[MODEL_SELECTOR] Trying model ${i + 1}/${models.length}: ${model}`);
+
     try {
       const chatCompletion = await groq.chat.completions.create({
         messages,
         model,
         temperature: 0.5,
-        max_tokens: 1024,
+        max_completion_tokens: 1024, // max_tokens is deprecated in newer Groq SDK
       });
+
+      if (i > 0) {
+        console.warn(`[MODEL_SELECTOR] Fell back to model: ${model}`);
+      }
+
       return {
         response: chatCompletion,
         modelUsed: model,
-        fallback: i > 0, // true if we are not on the first (primary) model
+        fallback: i > 0,
         error: null,
       };
     } catch (err) {
-      // Detect quota / rate‑limit errors – Groq returns 429 or a code like 'rate_limit'
-      const status = err.status || (err.response && err.response.status);
-      const code = err.code || (err.response && err.response.data && err.response.data.error && err.response.data.error.code);
-      if (status === 429 || code === 'rate_limit' || code === 'quota_exceeded') {
-        // Expected fallback condition – try next model
+      // Groq SDK surfaces status on the error object directly
+      const status = err.status ?? err.statusCode ?? err.response?.status;
+      // Groq error codes seen in practice
+      const errMsg = (err.message || '').toLowerCase();
+      const isQuotaError =
+        status === 429 ||
+        errMsg.includes('rate limit') ||
+        errMsg.includes('quota') ||
+        errMsg.includes('rate_limit') ||
+        err.code === 'rate_limit_exceeded' ||
+        err.code === 'quota_exceeded';
+
+      if (isQuotaError) {
+        console.warn(`[MODEL_SELECTOR] Quota/rate-limit hit on ${model}: ${err.message}`);
         lastError = err;
-        continue;
+        continue; // try next model
       }
-      // Unexpected error – abort fallback chain and rethrow
+
+      // Non-quota error (bad key, network, etc.) — surface immediately
       throw err;
     }
   }
-  // All models exhausted
-  throw lastError || new Error('All models failed without a recognizable quota error');
+
+  // All models exhausted — throw the last quota error with context
+  const exhaustedErr = lastError || new Error('All models in fallback chain failed');
+  exhaustedErr.message = `[MODEL_SELECTOR] All ${models.length} models exhausted. Last error: ${lastError?.message}`;
+  throw exhaustedErr;
 }
