@@ -3,12 +3,12 @@ import { ChevronRight } from 'lucide-react';
 
 export default function Experience() {
   return (
-    <section id="experience" className="container" style={{ padding: '5rem 0' }}>
+    <section id="experience" className="container section">
       <h2>Where I've Worked</h2>
-      <div className="glass" style={{ padding: '3rem' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+      <div className="glass experience-card">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.5rem', gap: '1rem' }}>
           <div>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Full Stack Software Developer <span style={{ color: 'var(--neon-cyan)' }}>@ Candent Technologies</span></h3>
+            <h3 className="experience-title">Full Stack Software Developer <span style={{ color: 'var(--neon-cyan)' }}>@ Candent Technologies</span></h3>
             <p style={{ color: 'var(--text-muted)' }}>Mar 2023 - Present | Pune, IN</p>
           </div>
         </div>

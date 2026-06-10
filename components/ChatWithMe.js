@@ -48,7 +48,7 @@ export default function ChatWithMe() {
   };
 
   return (
-    <section id="chat" className="container" style={{ padding: '8rem 0' }}>
+    <section id="chat" className="container section">
       <h2 style={{ textAlign: 'center', width: '100%' }}>Talk To My Digital Twin</h2>
       
       <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3rem' }}>
@@ -57,7 +57,8 @@ export default function ChatWithMe() {
           maxWidth: '800px', 
           display: 'flex', 
           flexDirection: 'column', 
-          height: '600px', 
+          height: 'min(600px, 78svh)', 
+          minHeight: '460px',
           overflow: 'hidden',
           background: 'rgba(5, 5, 8, 0.8)',
           boxShadow: '0 0 50px rgba(0, 240, 255, 0.05)'
@@ -76,7 +77,7 @@ export default function ChatWithMe() {
               <span className="mac-btn mac-min"></span>
               <span className="mac-btn mac-max"></span>
             </div>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'monospace' }}>
+            <span style={{ color: 'var(--text-muted)', fontSize: 'clamp(0.72rem, 2.6vw, 0.85rem)', fontFamily: 'monospace', textAlign: 'center' }}>
               hrishikesh@ai-core ~ bash
             </span>
             <div style={{ width: '44px' }}></div> {/* Spacer for centering */}
@@ -85,18 +86,18 @@ export default function ChatWithMe() {
           {/* Chat Window */}
           <div style={{ 
             flexGrow: 1, 
-            padding: '2rem', 
+            padding: 'clamp(1rem, 4vw, 2rem)', 
             overflowY: 'auto', 
             display: 'flex', 
             flexDirection: 'column', 
             gap: '1.5rem',
             fontFamily: 'monospace',
-            fontSize: '1rem'
+            fontSize: 'clamp(0.82rem, 2.4vw, 1rem)'
           }}>
             {messages.map((msg, idx) => (
               <div key={idx} style={{ 
                 alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
-                maxWidth: '85%'
+                maxWidth: 'min(85%, 620px)'
               }}>
                 <div style={{ 
                   color: msg.role === 'user' ? 'var(--neon-cyan)' : 'var(--neon-pink)', 
@@ -108,7 +109,8 @@ export default function ChatWithMe() {
                 <div style={{ 
                   color: 'var(--text-main)', 
                   lineHeight: 1.6, 
-                  whiteSpace: 'pre-wrap'
+                  whiteSpace: 'pre-wrap',
+                  overflowWrap: 'anywhere'
                 }}>
                   {msg.content}
                 </div>
@@ -125,12 +127,13 @@ export default function ChatWithMe() {
           {/* Input Area */}
           <form onSubmit={sendMessage} style={{ 
             display: 'flex', 
-            padding: '1.5rem', 
+            padding: 'clamp(1rem, 3vw, 1.5rem)', 
             borderTop: '1px solid var(--glass-border)', 
             background: 'rgba(0,0,0,0.4)',
-            alignItems: 'center'
+            alignItems: 'center',
+            gap: '0.75rem'
           }}>
-            <span style={{ color: 'var(--neon-cyan)', marginRight: '1rem', fontWeight: 'bold' }}>$</span>
+            <span style={{ color: 'var(--neon-cyan)', fontWeight: 'bold' }}>$</span>
             <input 
               type="text" 
               value={input}
@@ -138,6 +141,7 @@ export default function ChatWithMe() {
               placeholder="Execute command or ask a question..." 
               style={{ 
                 flexGrow: 1, 
+                minWidth: 0,
                 background: 'transparent', 
                 border: 'none', 
                 color: 'white',
@@ -150,8 +154,7 @@ export default function ChatWithMe() {
               type="submit" 
               disabled={isLoading}
               style={{ 
-                padding: '0.8rem 2rem', 
-                marginLeft: '1rem', 
+                padding: '0.75rem clamp(1rem, 4vw, 2rem)', 
                 background: 'var(--text-main)', 
                 color: '#000', 
                 border: 'none', 

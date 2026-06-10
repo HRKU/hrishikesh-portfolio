@@ -10,11 +10,11 @@ export default function Skills() {
   ];
 
   return (
-    <section id="skills" className="container" style={{ padding: '5rem 0' }}>
+    <section id="skills" className="container section">
       <h2>Technical Arsenal</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+      <div className="responsive-grid">
         {skills.map((skillGroup, idx) => (
-          <div key={idx} className="glass" style={{ padding: '2rem' }}>
+          <div key={idx} className="glass card-pad">
             <h3 style={{ color: 'var(--neon-violet)', marginBottom: '1rem', fontSize: '1.2rem' }}>{skillGroup.category}</h3>
             <ul style={{ listStyle: 'none' }}>
               {skillGroup.items.map((item, i) => (

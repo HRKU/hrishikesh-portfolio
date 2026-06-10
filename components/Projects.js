@@ -21,11 +21,11 @@ export default function Projects() {
   ];
 
   return (
-    <section id="projects" className="container" style={{ padding: '5rem 0' }}>
+    <section id="projects" className="container section">
       <h2>Some Things I've Built</h2>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+      <div className="project-grid">
         {projects.map((project, idx) => (
-          <div key={idx} className="glass" style={{ padding: '2rem', display: 'flex', flexDirection: 'column' }}>
+          <div key={idx} className="glass card-pad" style={{ display: 'flex', flexDirection: 'column' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
               <div style={{ color: 'var(--neon-violet)' }}>
                 <FolderGit2 size={36} />
@@ -33,7 +33,7 @@ export default function Projects() {
             </div>
             <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#fff' }}>{project.title}</h3>
             <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', flexGrow: 1 }}>{project.description}</p>
-            <p style={{ color: 'var(--neon-cyan)', fontSize: '0.9rem', fontFamily: 'monospace' }}>{project.tech}</p>
+            <p style={{ color: 'var(--neon-cyan)', fontSize: '0.9rem', fontFamily: 'monospace', overflowWrap: 'anywhere' }}>{project.tech}</p>
           </div>
         ))}
       </div>

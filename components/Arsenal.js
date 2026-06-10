@@ -157,6 +157,7 @@ function MetricPill({ text }) {
       color: 'rgba(240,240,245,0.65)',
       background: 'rgba(255,255,255,0.04)',
       border: '1px solid rgba(255,255,255,0.07)',
+      overflowWrap: 'anywhere',
     }}>
       <span style={{ width: '5px', height: '5px', borderRadius: '50%', background: 'var(--neon-cyan)', flexShrink: 0 }} />
       {text}
@@ -184,6 +185,7 @@ function ProjectCard({ project, index }) {
 
   return (
     <div
+      className="arsenal-card"
       ref={cardRef}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -193,7 +195,7 @@ function ProjectCard({ project, index }) {
         WebkitBackdropFilter: 'blur(18px)',
         border: `1px solid ${hovered ? meta.color + '55' : 'rgba(255,255,255,0.06)'}`,
         borderRadius: '18px',
-        padding: '1.6rem',
+        padding: 'clamp(1.2rem, 4vw, 1.6rem)',
         display: 'flex',
         flexDirection: 'column',
         gap: '1rem',
@@ -201,7 +203,7 @@ function ProjectCard({ project, index }) {
         overflow: 'hidden',
         cursor: 'default',
         transition: 'transform 0.3s cubic-bezier(0.22,1,0.36,1), border-color 0.3s ease, box-shadow 0.3s ease',
-        transform: hovered ? 'translateY(-6px) scale(1.015)' : visible ? 'translateY(0) scale(1)' : 'translateY(28px) scale(0.97)',
+        transform: hovered ? 'translateY(-6px) scale(1.015)' : visible ? 'translateY(0) scale(1)' : 'translateY(22px) scale(0.98)',
         opacity: visible ? 1 : 0,
         boxShadow: hovered
           ? `0 16px 48px ${meta.shadow}, 0 0 0 1px ${meta.color}20`
@@ -225,7 +227,7 @@ function ProjectCard({ project, index }) {
       }} />
 
       {/* Header row */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '0.85rem' }}>
         <div style={{
           width: '42px',
           height: '42px',
@@ -250,6 +252,7 @@ function ProjectCard({ project, index }) {
           border: `1px solid ${meta.color}30`,
           borderRadius: '999px',
           padding: '0.2rem 0.7rem',
+          whiteSpace: 'nowrap',
         }}>
           {project.category}
         </span>
@@ -305,7 +308,7 @@ export default function Arsenal() {
     : projects.filter(p => p.category === activeCategory);
 
   return (
-    <section id="arsenal" className="container" style={{ padding: '5rem 0' }}>
+    <section id="arsenal" className="container section">
       {/* Section heading */}
       <div style={{ marginBottom: '3rem' }}>
         <h2 style={{ marginBottom: '0.5rem' }}>Technical Arsenal</h2>
@@ -315,18 +318,14 @@ export default function Arsenal() {
       </div>
 
       {/* Category filters */}
-      <div style={{
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '0.6rem',
-        marginBottom: '2.5rem',
-      }}>
+      <div className="filter-row">
         {CATEGORIES.map(cat => {
           const meta = cat === 'All' ? null : CATEGORY_META[cat];
           const isActive = activeCategory === cat;
           return (
             <button
               key={cat}
+              className="filter-button"
               onClick={() => setActiveCategory(cat)}
               style={{
                 padding: '0.45rem 1.2rem',
@@ -362,26 +361,11 @@ export default function Arsenal() {
       </div>
 
       {/* Project grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '1.5rem',
-      }}
-        className="arsenal-grid"
-      >
+      <div className="arsenal-grid">
         {filtered.map((project, idx) => (
           <ProjectCard key={project.title} project={project} index={idx} />
         ))}
       </div>
-
-      <style>{`
-        @media (max-width: 1024px) {
-          .arsenal-grid { grid-template-columns: repeat(2, 1fr) !important; }
-        }
-        @media (max-width: 640px) {
-          .arsenal-grid { grid-template-columns: 1fr !important; }
-        }
-      `}</style>
     </section>
   );
 }
