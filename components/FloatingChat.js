@@ -84,48 +84,21 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
     <>
       {/* Floating Toggle Button */}
       <button 
+        className="floating-chat-toggle"
         onClick={() => setIsOpen(!isOpen)}
         style={{
-          position: 'fixed',
-          bottom: '2rem',
-          right: '2rem',
-          width: '60px',
-          height: '60px',
-          borderRadius: '50%',
-          background: 'linear-gradient(45deg, var(--neon-cyan), var(--neon-violet))',
-          border: 'none',
-          color: '#fff',
-          cursor: 'pointer',
-          boxShadow: '0 4px 20px rgba(0, 240, 255, 0.4)',
-          zIndex: 1000,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          transition: 'transform 0.3s ease',
           transform: isOpen ? 'rotate(90deg) scale(0.9)' : 'rotate(0deg) scale(1)'
         }}
+        aria-label={isOpen ? 'Close chat' : 'Open chat'}
       >
         {isOpen ? <X size={28} /> : <MessageSquare size={28} />}
       </button>
 
       {/* Sidebar Panel */}
-      <div className="glass" style={{
-        position: 'fixed',
-        bottom: '5.5rem',
-        right: '2rem',
-        width: '400px',
-        maxWidth: 'calc(100vw - 4rem)',
-        height: '600px',
-        maxHeight: 'calc(100vh - 8rem)',
-        background: 'rgba(10, 10, 15, 0.95)',
-        zIndex: 999,
-        display: 'flex',
-        flexDirection: 'column',
-        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+      <div className="glass floating-chat-panel" style={{
         transform: isOpen ? 'translateY(0) scale(1)' : 'translateY(20px) scale(0.95)',
         opacity: isOpen ? 1 : 0,
-        pointerEvents: isOpen ? 'auto' : 'none',
-        overflow: 'hidden'
+        pointerEvents: isOpen ? 'auto' : 'none'
       }}>
         {/* Header */}
         <div style={{ 
@@ -154,16 +127,7 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
         </div>
 
         {/* Chat Window */}
-        <div style={{ 
-          flexGrow: 1, 
-          padding: '1.5rem', 
-          overflowY: 'auto', 
-          display: 'flex', 
-          flexDirection: 'column', 
-          gap: '1.2rem',
-          fontFamily: 'monospace',
-          fontSize: '0.9rem'
-        }}>
+        <div className="chat-scroll-area">
           {messages.map((msg, idx) => (
             <div key={idx} style={{ 
               alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
@@ -182,7 +146,8 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
                 lineHeight: 1.5,
                 background: msg.role === 'user' ? 'rgba(0, 240, 255, 0.05)' : 'transparent',
                 padding: msg.role === 'user' ? '0.5rem 1rem' : '0',
-                borderRadius: '8px'
+                borderRadius: '8px',
+                overflowWrap: 'anywhere'
               }}>
                 {msg.role === 'user' ? (
                   <span style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</span>
@@ -231,7 +196,8 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
                   fontSize: '0.75rem',
                   cursor: 'pointer',
                   transition: 'background 0.2s',
-                  fontFamily: 'Inter'
+                  fontFamily: 'Inter',
+                  minHeight: '34px'
                 }}
               >
                 {q}
@@ -241,19 +207,14 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
         )}
 
         {/* Input Area */}
-        <form onSubmit={handleSubmit} style={{ 
-          display: 'flex', 
-          padding: '1rem', 
-          borderTop: '1px solid var(--glass-border)', 
-          background: 'rgba(0,0,0,0.4)',
-          alignItems: 'center'
-        }}>
-          <span style={{ color: 'var(--neon-cyan)', marginRight: '0.5rem', fontWeight: 'bold' }}>$</span>
+        <form onSubmit={handleSubmit} className="chat-input-form">
+          <span style={{ color: 'var(--neon-cyan)', fontWeight: 'bold' }}>$</span>
           <input 
             type="text" 
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask a question..." 
+            className="chat-input"
             style={{ 
               flexGrow: 1, 
               background: 'transparent', 
@@ -269,7 +230,6 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
             disabled={isLoading}
             style={{ 
               padding: '0.5rem 1rem', 
-              marginLeft: '0.5rem', 
               background: 'var(--text-main)', 
               color: '#000', 
               border: 'none', 
