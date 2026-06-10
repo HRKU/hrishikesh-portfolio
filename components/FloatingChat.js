@@ -84,7 +84,7 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
     <>
       {/* Floating Toggle Button */}
       <button 
-        className="floating-chat-toggle"
+        className={`floating-chat-toggle${isOpen ? ' is-open' : ''}`}
         onClick={() => setIsOpen(!isOpen)}
         style={{
           transform: isOpen ? 'rotate(90deg) scale(0.9)' : 'rotate(0deg) scale(1)'
@@ -117,13 +117,24 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
           <span style={{ color: 'var(--text-main)', fontSize: '0.85rem', fontFamily: 'monospace', fontWeight: 'bold' }}>
             Digital Twin
           </span>
-          <button 
-            onClick={clearChat}
-            title="Clear Chat"
-            style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-          >
-            <Trash2 size={18} />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button 
+              onClick={clearChat}
+              title="Clear Chat"
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+            >
+              <Trash2 size={18} />
+            </button>
+            <button
+              className="chat-header-close"
+              onClick={() => setIsOpen(false)}
+              title="Close Chat"
+              aria-label="Close chat"
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', alignItems: 'center' }}
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* Chat Window */}
