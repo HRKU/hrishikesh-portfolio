@@ -411,6 +411,10 @@ h2::after {
   min-width: 0;
 }
 
+.chat-header-close {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .hero-grid {
     grid-template-columns: 1fr;
@@ -485,6 +489,10 @@ h2::after {
     height: 54px;
   }
 
+  .floating-chat-toggle.is-open {
+    display: none;
+  }
+
   .floating-chat-panel {
     left: 0;
     right: 0;
@@ -498,6 +506,10 @@ h2::after {
 
   .chat-input-form {
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .chat-header-close {
+    display: flex;
   }
 
   .tech-grid-overlay {
