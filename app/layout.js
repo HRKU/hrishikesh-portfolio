@@ -1,4 +1,5 @@
 import './globals.css'
+import TechBackground from '@/components/TechBackground';
 
 export const metadata = {
   title: 'Hrishikesh Upadhyaya | Full Stack & AI Developer',
@@ -8,7 +9,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <TechBackground />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          {children}
+        </div>
+      </body>
     </html>
   )
 }
