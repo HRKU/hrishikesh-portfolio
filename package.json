@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "chunk:resume": "node scripts/chunk-resume.mjs"
+    "chunk:resume": "node scripts/chunk-resume.mjs",
+    "embed:resume": "node scripts/embed-chunks.mjs"
   },
   "dependencies": {
     "groq-sdk": "^1.2.1",

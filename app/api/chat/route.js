@@ -3,6 +3,7 @@ import Groq from 'groq-sdk';
 import { logRequest, generateRequestId, runSecurityChecks, updateUsage } from './utils/logger';
 import { getChatCompletionStream } from './utils/modelSelector';
 import { getCachedAnswer, setCachedAnswer, cleanCache } from './utils/cache';
+import { retrieveContext } from './utils/rag';
 
 // ─── Module-level singletons (avoid re-creating on every request) ─────────────
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -309,10 +310,24 @@ export async function POST(req) {
       return createTextStreamResponse(cachedReply);
     }
 
-    // --- 6. LLM call with model fallback ---
+    // --- 6. RAG context retrieval ---
+    let systemPromptWithContext = SYSTEM_PROMPT;
+    try {
+      const { context, chunks, error } = await retrieveContext(userPrompt);
+      if (context) {
+        systemPromptWithContext += `\n\nRELEVANT RESUME CONTEXT (use this to answer accurately):\n${context}\n\nIMPORTANT: Base your answer on the context above. If the context doesn't cover the question, say so honestly.`;
+        console.log(`[RAG] Injected ${chunks.length} chunks (scores: ${chunks.map(c => c.score.toFixed(3)).join(', ')})`);
+      } else if (error) {
+        console.warn(`[RAG] Skipped: ${error}`);
+      }
+    } catch (ragErr) {
+      console.warn('[RAG] Non-fatal error:', ragErr.message);
+    }
+
+    // --- 7. LLM call with model fallback ---
     const { response: chatCompletionStream, modelUsed, fallback, providerStatus } = await getChatCompletionStream(
       groq,
-      [{ role: 'system', content: SYSTEM_PROMPT }, ...truncatedMessages],
+      [{ role: 'system', content: systemPromptWithContext }, ...truncatedMessages],
       MODEL_ORDER
     );
     return createGroqStreamResponse({
