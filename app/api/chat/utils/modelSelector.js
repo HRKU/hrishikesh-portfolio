@@ -72,3 +72,62 @@ export async function getChatCompletion(groq, messages, models) {
   exhaustedErr.message = `[MODEL_SELECTOR] All ${models.length} models exhausted. Last error: ${lastError?.message}`;
   throw exhaustedErr;
 }
+
+export async function getChatCompletionStream(groq, messages, models) {
+  let lastError = null;
+  let providerStatus = 'error';
+
+  for (let i = 0; i < models.length; i++) {
+    const model = models[i];
+    console.log(`[MODEL_SELECTOR] Trying streaming model ${i + 1}/${models.length}: ${model}`);
+
+    try {
+      const stream = await groq.chat.completions.create({
+        messages,
+        model,
+        temperature: 0.5,
+        max_completion_tokens: 1024,
+        stream: true,
+      });
+
+      if (i > 0) {
+        console.warn(`[MODEL_SELECTOR] Fell back to streaming model: ${model}`);
+        providerStatus = 'fallback';
+      } else {
+        providerStatus = 'success';
+      }
+
+      return {
+        response: stream,
+        modelUsed: model,
+        fallback: i > 0,
+        error: null,
+        providerStatus,
+      };
+    } catch (err) {
+      const status = err.status ?? err.statusCode ?? err.response?.status;
+      const errMsg = (err.message || '').toLowerCase();
+      const isQuotaError =
+        status === 429 ||
+        errMsg.includes('rate limit') ||
+        errMsg.includes('quota') ||
+        errMsg.includes('rate_limit') ||
+        err.code === 'rate_limit_exceeded' ||
+        err.code === 'quota_exceeded';
+
+      if (isQuotaError) {
+        console.warn(`[MODEL_SELECTOR] Streaming quota/rate-limit hit on ${model}: ${err.message}`);
+        providerStatus = 'rate_limited';
+        lastError = err;
+        continue;
+      }
+
+      providerStatus = 'error';
+      throw err;
+    }
+  }
+
+  const exhaustedErr = lastError || new Error('All models in fallback chain failed');
+  exhaustedErr.message = `[MODEL_SELECTOR] All ${models.length} streaming models exhausted. Last error: ${lastError?.message}`;
+  throw exhaustedErr;
+}

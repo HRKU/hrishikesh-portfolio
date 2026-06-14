@@ -1,0 +1,223 @@
+\documentclass[10pt, letterpaper]{article}
+
+% Packages:
+\usepackage[
+    ignoreheadfoot,
+    top=1 cm,
+    bottom=1 cm,
+    left=2 cm,
+    right=2 cm,
+    footskip=1.0 cm,
+]{geometry}
+\usepackage{titlesec}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage[dvipsnames]{xcolor}
+\definecolor{primaryColor}{RGB}{0, 0, 0}
+\usepackage{enumitem}
+\usepackage{fontawesome5}
+\usepackage{amsmath}
+\usepackage[
+    pdftitle={Hrishikesh Upadhyaya},
+    pdfauthor={Hrishikesh Upadhyaya},
+    pdfcreator={Hrishikesh Upadhyaya},
+    colorlinks=true,
+    urlcolor=primaryColor
+]{hyperref}
+\usepackage[pscoord]{eso-pic}
+\usepackage{calc}
+\usepackage{bookmark}
+\usepackage{lastpage}
+\usepackage{changepage}
+\usepackage{paracol}
+\usepackage{ifthen}
+\usepackage{needspace}
+\usepackage{iftex}
+
+\ifPDFTeX
+    \input{glyphtounicode}
+    \pdfgentounicode=1
+    \usepackage[T1]{fontenc}
+    \usepackage[utf8]{inputenc}
+    \usepackage{lmodern}
+\fi
+
+\usepackage{charter}
+
+\raggedright
+\AtBeginEnvironment{adjustwidth}{\partopsep0pt}
+\pagestyle{empty}
+\setcounter{secnumdepth}{0}
+\setlength{\parindent}{0pt}
+\setlength{\topskip}{0pt}
+\setlength{\columnsep}{0.15cm}
+\pagenumbering{gobble}
+
+\titleformat{\section}{\needspace{4\baselineskip}\bfseries\large}{}{0pt}{}[\vspace{1pt}\titlerule]
+
+\titlespacing{\section}{-1pt}{0.3 cm}{0.2 cm}
+
+\renewcommand\labelitemi{$\vcenter{\hbox{\small$\bullet$}}$}
+\newenvironment{highlights}{
+    \begin{itemize}[
+        topsep=0.10 cm,
+        parsep=0.10 cm,
+        partopsep=0pt,
+        itemsep=0pt,
+        leftmargin=0 cm + 10pt
+    ]
+}{\end{itemize}}
+
+\newenvironment{onecolentry}{
+    \begin{adjustwidth}{0 cm + 0.00001 cm}{0 cm + 0.00001 cm}
+}{\end{adjustwidth}}
+
+\newenvironment{twocolentry}[2][]{
+    \onecolentry
+    \def\secondColumn{#2}
+    \setcolumnwidth{\fill, 4.5 cm}
+    \begin{paracol}{2}
+}{
+    \switchcolumn \raggedleft \secondColumn
+    \end{paracol}
+    \endonecolentry
+}
+
+\newenvironment{header}{
+    \setlength{\topsep}{0pt}\par\kern\topsep\centering\linespread{1.5}
+}{\par\kern\topsep}
+
+\let\hrefWithoutArrow\href
+
+\begin{document}
+    \newcommand{\AND}{\unskip
+        \cleaders\copy\ANDbox\hskip\wd\ANDbox
+        \ignorespaces
+    }
+    \newsavebox\ANDbox
+    \sbox\ANDbox{$|$}
+
+    % ── Header ──────────────────────────────────────────────
+    \begin{header}
+        \fontsize{25 pt}{25 pt}\selectfont Hrishikesh Upadhyaya
+
+        \vspace{3 pt}
+
+        \normalsize
+        \mbox{Pune, India}%
+        \kern 5.0 pt\AND\kern 5.0 pt%
+        \mbox{\hrefWithoutArrow{mailto:hrishikesh.u57@gmail.com}{hrishikesh.u57@gmail.com}}%
+        \kern 5.0 pt\AND\kern 5.0 pt%
+        \mbox{\hrefWithoutArrow{tel:+91-702-826-33-79}{7028263379}}%
+        \kern 5.0 pt\AND\kern 5.0 pt%
+        \mbox{\hrefWithoutArrow{https://linkedin.com/in/hrishikesh-upadhyaya}{LinkedIn}}%
+        \kern 5.0 pt\AND\kern 5.0 pt%
+        \mbox{\hrefWithoutArrow{https://github.com/hrku}{GitHub}}%
+        \kern 5.0 pt\AND\kern 5.0 pt%
+        \mbox{\hrefWithoutArrow{https://hrku.github.io/portfolio_2025/}{Portfolio}}%
+    \end{header}
+
+    \vspace{5 pt - 0.3 cm}
+
+
+    % ── Technologies ────────────────────────────────────────
+    \section{Technologies}
+
+    \begin{onecolentry}
+        \textbf{Languages:} JavaScript, TypeScript, Python, Java, HTML, CSS
+    \end{onecolentry}
+    \vspace{0.1 cm}
+    \begin{onecolentry}
+        \textbf{AI / GenAI:} Multi-agent AI systems (AutoGen), Azure OpenAI, RAG pipelines, vector search \& embeddings, LLM tool-calling, AI workflow automation, Ollama
+    \end{onecolentry}
+    \vspace{0.1 cm}
+    \begin{onecolentry}
+        \textbf{Frontend \& Backend:} React.js, Next.js, Node.js, Express, React Native, REST APIs
+    \end{onecolentry}
+    \vspace{0.1 cm}
+    \begin{onecolentry}
+        \textbf{Cloud \& DevOps:} Azure (Azure OpenAI, Azure AI Search, Container Registry, App Services, Azure DevOps),
+        Docker, PowerShell, CI/CD, VPS, MongoDB, SQL, Git
+    \end{onecolentry}
+
+
+  
+
+
+    % ── Experience ──────────────────────────────────────────
+    \section{Professional Experience}
+
+
+\begin{twocolentry}{Mar 2023 -- Present} \textbf{Full Stack Software Developer}, \textit{Candent Technologies Pvt Ltd -- Pune, IN} \end{twocolentry} \vspace{0.10 cm} \begin{onecolentry} \begin{highlights} \item Built a \textbf{multi-agent AI chatbot} using \textbf{AutoGen} and \textbf{Azure OpenAI} (GPT-4o, GPT-4o-mini, o4-mini) for an enterprise cybersecurity platform focused on infrastructure asset analysis and cryptographic risk detection. \item Owned end-to-end \textbf{LLM-powered analysis pipelines} including \textbf{LLM tool-calling workflows}, retry handling, fallback strategies, and API-driven orchestration for production AI systems. \item Architected and implemented a separate \textbf{RAG pipeline} using \textbf{Azure OpenAI text-embedding-3} embeddings and \textbf{Azure AI Search} for grounded, context-aware responses across enterprise workflows.\item Built and integrated \textbf{REST APIs}, designed and consumed internal APIs across AI, backend, and frontend services, and worked with asynchronous workflows and message queue based integrations using \textbf{RabbitMQ}. \item Dockerized services and managed deployment workflows using \textbf{Azure Container Registry (ACR)}, \textbf{Azure DevOps}, and \textbf{App Services}; automated build and deployment pipelines using \textbf{PowerShell scripts}. \item Built an \textbf{AI-powered Scrum assistant} using \textbf{Ollama}, \textbf{Node.js}, and webhook integrations to automate standup data collection and structured team summaries. \item Collaborated directly with stakeholders to deliver \textbf{13+ fintech modules and dashboards} in \textbf{Next.js}; also developed internal business tools with full-stack ownership. \end{highlights} \end{onecolentry}
+
+
+
+
+    % ── Projects ────────────────────────────────────────────
+    \section{Projects}
+
+    \begin{onecolentry}
+        \textbf{Run2Feed Marathon Platform}
+        \textit{-- Next.js, Node.js, Docker, VPS, Easebuzz}
+    \end{onecolentry}
+    \vspace{0.10 cm}
+    \begin{onecolentry}
+        \begin{highlights}
+            \item Built and deployed a full-stack charity marathon platform with event management,
+participant registration, \textbf{Easebuzz payment integration}, and an admin dashboard;
+independently managed \textbf{Dockerized VPS deployment}, domain configuration,
+subdomains, SSL setup, and production hosting workflows.
+        \end{highlights}
+    \end{onecolentry}
+
+    \vspace{0.08 cm}
+
+    \begin{onecolentry}
+        \textbf{Ticketing System Web App}
+        \textit{-- React.js, TypeScript, Node.js, MongoDB}
+    \end{onecolentry}
+    \vspace{0.10 cm}
+    \begin{onecolentry}
+        \begin{highlights}
+            \item Role-based ticketing platform with reusable components, structured
+            state management, and secure \textbf{REST APIs} for authentication and
+            ticket lifecycle workflows.
+        \end{highlights}
+    \end{onecolentry}
+
+    \vspace{0.08 cm}
+
+    \begin{onecolentry}
+        \textbf{Modern Business Website}
+        \textit{-- Next.js, Tailwind CSS, TypeScript, Vercel}
+    \end{onecolentry}
+    \vspace{0.10 cm}
+    \begin{onecolentry}
+        \begin{highlights}
+            \item Responsive production website with \textbf{Zod validation},
+            \textbf{Cloudflare Turnstile CAPTCHA}, custom domain, and
+            \textbf{90+ Lighthouse scores}.
+        \end{highlights}
+    \end{onecolentry}
+
+
+    % ── Education ───────────────────────────────────────────
+    \section{Education}
+
+    \begin{twocolentry}{2022}
+        \textbf{Savitribai Phule Pune University},
+        B.E in Electronics and Telecommunication \quad CGPA: 8.69\,/\,10.0
+    \end{twocolentry}
+    
+      % ── Awards ──────────────────────────────────────────────
+    \section{Awards \& Achievements}
+
+    \begin{onecolentry}
+        \begin{highlights}
+            \item Received the \textbf{Young Achiever Award} at \textbf{Candent Technologies}
+            for consistent delivery and engineering excellence.
+            \item Recognized by client stakeholders for leading front-end development and
+            delivering critical fin-tech modules.
+        \end{highlights}
+    \end{onecolentry}
+\end{document}

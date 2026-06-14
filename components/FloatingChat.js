@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { MessageSquare, X, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import { streamTextAtFrameRate } from './streamTextAtFrameRate';
 
 // Defined outside component so it's not recreated on every render
 const INITIAL_MESSAGE = {
@@ -41,8 +42,9 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
     if (!text.trim() || isLoading) return;
 
     const userMessage = { role: 'user', content: text };
-    const newMessages = [...messages, userMessage];
-    setMessages(newMessages);
+    const assistantIndex = messages.length + 1;
+    const initialMessages = [...messages, userMessage, { role: 'assistant', content: '' }];
+    setMessages(initialMessages);
     setInput('');
     setIsLoading(true);
     setHasInteracted(true);
@@ -51,25 +53,59 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages })
+        body: JSON.stringify({ messages: [...messages, userMessage] })
       });
 
       if (res.status === 429) {
-        setMessages([...newMessages, { role: 'assistant', content: "I'm getting too many requests right now. Please wait a moment before trying again." }]);
+        setMessages([...messages, userMessage, { role: 'assistant', content: "I'm getting too many requests right now. Please wait a moment before trying again." }]);
         return;
       }
 
       if (!res.ok) {
-        setMessages([...newMessages, { role: 'assistant', content: "Something went wrong on my end. Please try again shortly." }]);
+        let errorMessage = "Something went wrong on my end. Please try again shortly.";
+        try {
+          const payload = await res.json();
+          errorMessage = payload?.error || errorMessage;
+        } catch {
+          // Keep the generic message if the response is not JSON.
+        }
+        setMessages([...messages, userMessage, { role: 'assistant', content: errorMessage }]);
         return;
       }
 
-      const data = await res.json();
-      const reply = data.reply?.trim() || "I couldn't generate a response. Please try again.";
-      setMessages([...newMessages, { role: 'assistant', content: reply }]);
+      if (!res.body) {
+        throw new Error('Missing response stream.');
+      }
+
+      let finalReply = '';
+      await streamTextAtFrameRate(
+        res,
+        (text) => {
+          finalReply = text;
+          setMessages(prev =>
+            prev.map((msg, idx) => (
+              idx === assistantIndex ? { ...msg, content: text } : msg
+            ))
+          );
+        },
+        {
+          charsPerSecond: 22,
+          minFrameMs: 45,
+          maxFrameMs: 120,
+          punctuationPauseMs: 200,
+          onComplete: (text) => { finalReply = text; },
+        }
+      );
+
+      finalReply = finalReply.trim() || "I couldn't generate a response. Please try again.";
+      setMessages(prev =>
+        prev.map((msg, idx) => (
+          idx === assistantIndex ? { ...msg, content: finalReply } : msg
+        ))
+      );
     } catch {
       // Don't expose raw error messages — they can contain server internals
-      setMessages([...newMessages, { role: 'assistant', content: "Connection issue. Please check your network and try again." }]);
+      setMessages([...messages, userMessage, { role: 'assistant', content: "Connection issue. Please check your network and try again." }]);
     } finally {
       setIsLoading(false);
     }

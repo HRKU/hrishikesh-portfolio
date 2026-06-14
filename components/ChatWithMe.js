@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
+import { streamTextAtFrameRate } from './streamTextAtFrameRate';
 
 export default function ChatWithMe() {
   const [messages, setMessages] = useState([
@@ -21,8 +22,10 @@ export default function ChatWithMe() {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    const newMessages = [...messages, { role: 'user', content: input }];
-    setMessages(newMessages);
+    const userMessage = { role: 'user', content: input };
+    const assistantIndex = messages.length + 1;
+    const initialMessages = [...messages, userMessage, { role: 'assistant', content: '' }];
+    setMessages(initialMessages);
     setInput('');
     setIsLoading(true);
 
@@ -30,18 +33,58 @@ export default function ChatWithMe() {
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages })
+        body: JSON.stringify({ messages: [...messages, userMessage] })
       });
 
-      if (!res.ok) {
-        if (res.status === 429) throw new Error("Rate limit exceeded. Please wait a moment.");
-        throw new Error('Failed to reach AI Core.');
+      if (res.status === 429) {
+        setMessages([...messages, userMessage, { role: 'assistant', content: "Rate limit exceeded. Please wait a moment." }]);
+        return;
       }
 
-      const data = await res.json();
-      setMessages([...newMessages, { role: 'assistant', content: data.reply }]);
+      if (!res.ok) {
+        let errorMessage = 'Failed to reach AI Core.';
+        try {
+          const payload = await res.json();
+          errorMessage = payload?.error || errorMessage;
+        } catch {
+          // Keep the generic message if the response is not JSON.
+        }
+        setMessages([...messages, userMessage, { role: 'assistant', content: errorMessage }]);
+        return;
+      }
+
+      if (!res.body) {
+        throw new Error('Missing response stream.');
+      }
+
+      let finalReply = '';
+      await streamTextAtFrameRate(
+        res,
+        (text) => {
+          finalReply = text;
+          setMessages(prev =>
+            prev.map((msg, idx) => (
+              idx === assistantIndex ? { ...msg, content: text } : msg
+            ))
+          );
+        },
+        {
+          charsPerSecond: 22,
+          minFrameMs: 45,
+          maxFrameMs: 120,
+          punctuationPauseMs: 200,
+          onComplete: (text) => { finalReply = text; },
+        }
+      );
+
+      finalReply = finalReply.trim() || "I couldn't generate a response. Please try again.";
+      setMessages(prev =>
+        prev.map((msg, idx) => (
+          idx === assistantIndex ? { ...msg, content: finalReply } : msg
+        ))
+      );
     } catch (err) {
-      setMessages([...newMessages, { role: 'assistant', content: `[SYSTEM ERROR]: ${err.message}` }]);
+      setMessages([...messages, userMessage, { role: 'assistant', content: `[SYSTEM ERROR]: ${err.message}` }]);
     } finally {
       setIsLoading(false);
     }
