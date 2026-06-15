@@ -62,6 +62,24 @@ const STREAM_HEADERS = {
 const rateLimitMap = new Map();
 const RATE_LIMIT = 10;
 const TIME_WINDOW_MS = 60 * 1000;
+const MAX_MESSAGES = 10;
+const MAX_MESSAGE_CHARS = 2000;
+
+function sanitizeMessages(rawMessages) {
+  const sanitized = [];
+
+  for (const message of rawMessages.slice(-MAX_MESSAGES)) {
+    if (!message || typeof message.content !== 'string') continue;
+    if (message.role !== 'user' && message.role !== 'assistant') continue;
+
+    const content = message.content.trim().slice(0, MAX_MESSAGE_CHARS);
+    if (!content) continue;
+
+    sanitized.push({ role: message.role, content });
+  }
+
+  return sanitized;
+}
 
 function checkRateLimit(ip, now) {
   const entry = rateLimitMap.get(ip);
@@ -248,9 +266,26 @@ export async function POST(req) {
       return NextResponse.json({ error: 'messages must be a non-empty array.' }, { status: 400 });
     }
 
-    // Truncate to last 10 messages for token control
-    const truncatedMessages = messages.slice(-10);
-    const userPrompt = truncatedMessages.at(-1)?.content?.trim() ?? '';
+    const truncatedMessages = sanitizeMessages(messages);
+    if (truncatedMessages.length === 0 || truncatedMessages.at(-1)?.role !== 'user') {
+      const latencyMs = Date.now() - startTime;
+      logRequest({
+        requestId,
+        ip,
+        model: 'validator',
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0,
+        latencyMs,
+        fallback: false,
+        errorReason: 'last message must be a non-empty user message',
+        providerStatus: 'rejected',
+        cacheHit: false,
+      });
+      return NextResponse.json({ error: 'Last message must be a non-empty user message.' }, { status: 400 });
+    }
+
+    const userPrompt = truncatedMessages.at(-1).content;
 
     console.log('[CHATBOT REQUEST]', JSON.stringify({
       requestId,
@@ -261,29 +296,32 @@ export async function POST(req) {
     }));
 
     // --- 4. Security checks (PII, prompt injection, SQL injection) ---
-    const securityCheck = runSecurityChecks(userPrompt);
-    if (securityCheck.triggered) {
-      const latencyMs = Date.now() - startTime;
-      console.warn(`[SECURITY_VIOLATION] requestId: ${requestId}, IP: ${ip}, Reason: ${securityCheck.reason}`);
-      logRequest({
-        requestId,
-        ip,
-        model: 'security',
-        promptTokens: 0,
-        completionTokens: 0,
-        totalTokens: 0,
-        latencyMs,
-        fallback: false,
-        errorReason: 'Security check failed',
-        providerStatus: 'blocked',
-        cacheHit: false,
-        securityTriggered: true,
-        securityReason: securityCheck.reason,
-      });
-      return NextResponse.json(
-        { error: 'Your request was blocked for security reasons. Please try with a different query.' },
-        { status: 403 }
-      );
+    for (const message of truncatedMessages) {
+      if (message.role !== 'user') continue;
+      const securityCheck = runSecurityChecks(message.content);
+      if (securityCheck.triggered) {
+        const latencyMs = Date.now() - startTime;
+        console.warn(`[SECURITY_VIOLATION] requestId: ${requestId}, IP: ${ip}, Reason: ${securityCheck.reason}`);
+        logRequest({
+          requestId,
+          ip,
+          model: 'security',
+          promptTokens: 0,
+          completionTokens: 0,
+          totalTokens: 0,
+          latencyMs,
+          fallback: false,
+          errorReason: 'Security check failed',
+          providerStatus: 'blocked',
+          cacheHit: false,
+          securityTriggered: true,
+          securityReason: securityCheck.reason,
+        });
+        return NextResponse.json(
+          { error: 'Your request was blocked for security reasons. Please try with a different query.' },
+          { status: 403 }
+        );
+      }
     }
 
     // --- 5. Cache check ---
@@ -316,7 +354,7 @@ export async function POST(req) {
       const { context, chunks, error } = await retrieveContext(userPrompt);
       if (context) {
         systemPromptWithContext += `\n\nRELEVANT RESUME CONTEXT (use this to answer accurately):\n${context}\n\nIMPORTANT: Base your answer on the context above. If the context doesn't cover the question, say so honestly.`;
-        console.log(`[RAG] Injected ${chunks.length} chunks (scores: ${chunks.map(c => c.score.toFixed(3)).join(', ')})`);
+        console.log(`[RAG] Injected ${chunks.length} chunks (rerank: ${chunks.map(c => c.score.toFixed(3)).join(', ')}, bi: ${chunks.map(c => c.biScore.toFixed(3)).join(', ')})`);
       } else if (error) {
         console.warn(`[RAG] Skipped: ${error}`);
       }

@@ -449,11 +449,21 @@ Expected users:
 Add:
 
 ```text
-Vector Database
-RAG
-Redis Cache
-Conversation Summaries
+Redis Cache              ← not yet
+Conversation Summaries   ← not yet
 ```
+
+**RAG — implemented (June 2026):**
+
+```text
+Pre-computed chunk embeddings (JSON, bundled at build)
+Runtime query embedding (Hugging Face Inference API)
+Cosine similarity search + top-3 injection into system prompt
+```
+
+See `docs /RAG_PIPELINE.md` for ops, threshold tuning, and token impact (~+273 prompt tokens when RAG injects).
+
+A dedicated vector database is not required at current scale (19 chunks). Revisit if the knowledge base grows significantly.
 
 Expected users:
 
@@ -494,9 +504,9 @@ For the current portfolio chatbot:
 * The biggest future risk is conversation history growth, not Groq limits.
 * Prioritize:
 
-  1. Conversation truncation
-  2. Rate limiting
-  3. Retrieval-based context
-  4. Response caching
+  1. Conversation truncation ✅
+  2. Rate limiting ✅
+  3. Retrieval-based context ✅ (RAG pipeline live)
+  4. Response caching ✅ (static + in-memory cache)
 
 With these controls in place, the chatbot can comfortably support real production traffic while remaining within Groq free-tier limits.

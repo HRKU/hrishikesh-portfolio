@@ -2,8 +2,7 @@
 
 import fs from 'node:fs';
 import path from 'node:path';
-
-const MODEL = 'BAAI/bge-small-en-v1.5';
+import { EMBEDDING_MODEL, HF_EMBEDDING_URL } from '../config/embedding.js';
 
 // ─── Simple .env parser to avoid external dependencies ────────────────────────
 function loadEnv() {
@@ -32,11 +31,9 @@ function loadEnv() {
 
 // ─── Fetch embeddings from Hugging Face with Retry for 503s ──────────────────
 async function getEmbeddingsWithRetry(texts, token, retries = 5, delayMs = 5000) {
-  const url = `https://router.huggingface.co/hf-inference/models/${MODEL}/pipeline/feature-extraction`;
-  
   for (let i = 0; i < retries; i++) {
     try {
-      const res = await fetch(url, {
+      const res = await fetch(HF_EMBEDDING_URL, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -88,7 +85,7 @@ async function processFile(inputPath, outputPath, token) {
   // Extract texts to embed
   const texts = chunks.map(c => c.text);
 
-  console.log(`[PROCESS] Requesting embeddings for ${chunks.length} chunks using ${MODEL}...`);
+  console.log(`[PROCESS] Requesting embeddings for ${chunks.length} chunks using ${EMBEDDING_MODEL}...`);
   const vectors = await getEmbeddingsWithRetry(texts, token);
 
   if (vectors.length !== chunks.length) {

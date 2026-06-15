@@ -82,6 +82,12 @@
 - [ ] Scope: `All scopes` or `Production` only
 - [ ] Save
 
+- [ ] Name: `HF_INFERENCE_KEY`
+- [ ] Value: `[YOUR_HUGGING_FACE_INFERENCE_TOKEN]`
+- [ ] Scope: `All scopes` or `Production` only
+- [ ] Save
+- [ ] Note: Chat works without this key, but RAG retrieval is skipped (no resume context injection)
+
 ### Review Build Settings
 
 - [ ] Go to Site Settings → Build & deploy → Build settings
@@ -113,6 +119,13 @@
   - [ ] Verify response appears
   - [ ] Try floating chat widget (bottom-right)
   - [ ] Test "Clear Chat" button
+
+- [ ] **Test RAG (resume-grounded retrieval)**
+  - [ ] Send: "What AI projects has Hrishikesh built?" — should return specific project details
+  - [ ] Send: "hi" — should respond without errors (RAG skipped for greetings)
+  - [ ] Check Netlify function logs for `[RAG] Injected N chunks` on resume questions
+  - [ ] Check `[CHATBOT_LOG]` — resume queries should show ~650–850 `promptTokens` vs ~414 for greetings
+  - [ ] See `docs /RAG_PIPELINE.md` for full smoke-test checklist
 
 - [ ] **Test API Directly**
   ```bash
@@ -186,9 +199,10 @@
 
 ### Documentation
 
-- [ ] Update README.md with deployment info
-- [ ] Document how to rotate API key
-- [ ] Add troubleshooting guide
+- [ ] Review `docs /RAG_PIPELINE.md` — RAG architecture and env vars
+- [ ] Review `CHATBOT_NOTES.md` — chatbot status and follow-ups
+- [ ] Document how to rotate API keys (`GROQ_API_KEY`, `HF_INFERENCE_KEY`)
+- [ ] After resume edits: re-run `pnpm embed:resume` and redeploy embedded JSON
 
 ---
 

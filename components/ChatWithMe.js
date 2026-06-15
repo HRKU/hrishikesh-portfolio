@@ -83,8 +83,8 @@ export default function ChatWithMe() {
           idx === assistantIndex ? { ...msg, content: finalReply } : msg
         ))
       );
-    } catch (err) {
-      setMessages([...messages, userMessage, { role: 'assistant', content: `[SYSTEM ERROR]: ${err.message}` }]);
+    } catch {
+      setMessages([...messages, userMessage, { role: 'assistant', content: 'Connection issue. Please check your network and try again.' }]);
     } finally {
       setIsLoading(false);
     }
