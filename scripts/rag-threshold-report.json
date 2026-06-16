@@ -1,0 +1,1426 @@
+{
+  "generatedAt": "2026-06-15T07:26:40.514Z",
+  "queryCount": 29,
+  "thresholdSummary": {
+    "0.3": {
+      "resumeRecall": 1,
+      "offTopicFalsePositiveRate": 1,
+      "resumeHit": 15,
+      "resumeTotal": 15,
+      "offTopicHit": 8,
+      "offTopicTotal": 8
+    },
+    "0.35": {
+      "resumeRecall": 1,
+      "offTopicFalsePositiveRate": 1,
+      "resumeHit": 15,
+      "resumeTotal": 15,
+      "offTopicHit": 8,
+      "offTopicTotal": 8
+    },
+    "0.4": {
+      "resumeRecall": 1,
+      "offTopicFalsePositiveRate": 0.875,
+      "resumeHit": 15,
+      "resumeTotal": 15,
+      "offTopicHit": 7,
+      "offTopicTotal": 8
+    },
+    "0.45": {
+      "resumeRecall": 1,
+      "offTopicFalsePositiveRate": 0.625,
+      "resumeHit": 15,
+      "resumeTotal": 15,
+      "offTopicHit": 5,
+      "offTopicTotal": 8
+    },
+    "0.5": {
+      "resumeRecall": 1,
+      "offTopicFalsePositiveRate": 0.5,
+      "resumeHit": 15,
+      "resumeTotal": 15,
+      "offTopicHit": 4,
+      "offTopicTotal": 8
+    }
+  },
+  "recommendation": {
+    "threshold": 0.5,
+    "reason": "100% resume recall with 50% off-topic false-positive rate (lowest among qualifying thresholds)"
+  },
+  "tokenStats": {
+    "avgPromptTokens": {
+      "resumeWithRag": 724,
+      "offTopicWithRag": 0,
+      "greetingNoRag": 0,
+      "ragOverheadEstimate": 724
+    },
+    "avgTotalTokens": {
+      "resumeWithRag": 797,
+      "offTopicWithRag": 0,
+      "greetingNoRag": 0
+    },
+    "avgLatencyMs": {
+      "resumeWithRag": 824,
+      "offTopicWithRag": 0,
+      "greetingNoRag": 0
+    },
+    "perQuery": [
+      {
+        "query": "What AI projects has Hrishikesh built?",
+        "category": "resume",
+        "promptTokens": 831,
+        "completionTokens": 86,
+        "totalTokens": 917,
+        "latencyMs": 1342
+      },
+      {
+        "query": "Tell me about the Run2Feed marathon platform",
+        "category": "resume",
+        "promptTokens": 691,
+        "completionTokens": 80,
+        "totalTokens": 771,
+        "latencyMs": 643
+      },
+      {
+        "query": "What is Hrishikesh experience at Candent Technologies?",
+        "category": "resume",
+        "promptTokens": 805,
+        "completionTokens": 79,
+        "totalTokens": 884,
+        "latencyMs": 891
+      },
+      {
+        "query": "What technologies does Hrishikesh use?",
+        "category": "resume",
+        "promptTokens": 589,
+        "completionTokens": 84,
+        "totalTokens": 673,
+        "latencyMs": 725
+      },
+      {
+        "query": "Describe the multi-agent AI chatbot project",
+        "category": "resume",
+        "promptTokens": 807,
+        "completionTokens": 66,
+        "totalTokens": 873,
+        "latencyMs": 1067
+      },
+      {
+        "query": "What DevOps and cloud skills does Hrishikesh have?",
+        "category": "resume",
+        "promptTokens": 838,
+        "completionTokens": 101,
+        "totalTokens": 939,
+        "latencyMs": 922
+      },
+      {
+        "query": "Tell me about the ticketing system web app",
+        "category": "resume",
+        "promptTokens": 689,
+        "completionTokens": 85,
+        "totalTokens": 774,
+        "latencyMs": 665
+      },
+      {
+        "query": "What awards has Hrishikesh received?",
+        "category": "resume",
+        "promptTokens": 602,
+        "completionTokens": 42,
+        "totalTokens": 644,
+        "latencyMs": 649
+      },
+      {
+        "query": "Where did Hrishikesh study and what degree?",
+        "category": "resume",
+        "promptTokens": 556,
+        "completionTokens": 51,
+        "totalTokens": 607,
+        "latencyMs": 770
+      },
+      {
+        "query": "Explain the RAG pipeline Hrishikesh architected",
+        "category": "resume",
+        "promptTokens": 832,
+        "completionTokens": 57,
+        "totalTokens": 889,
+        "latencyMs": 566
+      },
+      {
+        "query": "What fintech modules did Hrishikesh deliver?",
+        "category": "resume",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "What is Hrishikesh GenAI and LLM experience?",
+        "category": "resume",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "Does Hrishikesh know Docker and CI/CD?",
+        "category": "resume",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "What databases has Hrishikesh worked with?",
+        "category": "resume",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "Tell me about the AI Scrum assistant using Ollama",
+        "category": "resume",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "How do I bake a chocolate cake from scratch?",
+        "category": "off-topic",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "What is the capital of France?",
+        "category": "off-topic",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "Who won the FIFA World Cup in 2022?",
+        "category": "off-topic",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "How do I learn Python programming as a beginner?",
+        "category": "off-topic",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "What is the weather like in Tokyo today?",
+        "category": "off-topic",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "Tell me a joke about programming cats",
+        "category": "off-topic",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "How do I fix a flat tire on my car?",
+        "category": "off-topic",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "What are the best stocks to buy in 2026?",
+        "category": "off-topic",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "hi",
+        "category": "skip",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "hello",
+        "category": "skip",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "thanks",
+        "category": "skip",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      },
+      {
+        "query": "good morning",
+        "category": "skip",
+        "promptTokens": null,
+        "completionTokens": null,
+        "totalTokens": null,
+        "latencyMs": null
+      }
+    ]
+  },
+  "scoringDetails": [
+    {
+      "query": "What AI projects has Hrishikesh built?",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.6734328623414553,
+      "topTitle": "AI / GenAI",
+      "at035": [
+        {
+          "title": "AI / GenAI",
+          "score": 0.673
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.662
+        },
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.624
+        }
+      ],
+      "at045": [
+        {
+          "title": "AI / GenAI",
+          "score": 0.673
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.662
+        },
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.624
+        }
+      ],
+      "estContextTokensAt035": 460
+    },
+    {
+      "query": "Tell me about the Run2Feed marathon platform",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.8423721637880547,
+      "topTitle": "Run2Feed Marathon Platform",
+      "at035": [
+        {
+          "title": "Run2Feed Marathon Platform",
+          "score": 0.842
+        },
+        {
+          "title": "Run2Feed Marathon Platform",
+          "score": 0.819
+        },
+        {
+          "title": "Ticketing System Web App",
+          "score": 0.605
+        }
+      ],
+      "at045": [
+        {
+          "title": "Run2Feed Marathon Platform",
+          "score": 0.842
+        },
+        {
+          "title": "Run2Feed Marathon Platform",
+          "score": 0.819
+        },
+        {
+          "title": "Ticketing System Web App",
+          "score": 0.605
+        }
+      ],
+      "estContextTokensAt035": 267
+    },
+    {
+      "query": "What is Hrishikesh experience at Candent Technologies?",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.704514013477908,
+      "topTitle": "Awards & Achievements",
+      "at035": [
+        {
+          "title": "Awards & Achievements",
+          "score": 0.705
+        },
+        {
+          "title": "Awards & Achievements",
+          "score": 0.703
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd – Pune, IN Mar 2023 – Present",
+          "score": 0.685
+        }
+      ],
+      "at045": [
+        {
+          "title": "Awards & Achievements",
+          "score": 0.705
+        },
+        {
+          "title": "Awards & Achievements",
+          "score": 0.703
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd – Pune, IN Mar 2023 – Present",
+          "score": 0.685
+        }
+      ],
+      "estContextTokensAt035": 469
+    },
+    {
+      "query": "What technologies does Hrishikesh use?",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.5797231441740064,
+      "topTitle": "Tools, Platforms & Databases",
+      "at035": [
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.58
+        },
+        {
+          "title": "Modern Business Website",
+          "score": 0.572
+        },
+        {
+          "title": "Frameworks & Libraries",
+          "score": 0.552
+        }
+      ],
+      "at045": [
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.58
+        },
+        {
+          "title": "Modern Business Website",
+          "score": 0.572
+        },
+        {
+          "title": "Frameworks & Libraries",
+          "score": 0.552
+        }
+      ],
+      "estContextTokensAt035": 134
+    },
+    {
+      "query": "Describe the multi-agent AI chatbot project",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.7927422823015464,
+      "topTitle": "AI / GenAI",
+      "at035": [
+        {
+          "title": "AI / GenAI",
+          "score": 0.793
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.764
+        },
+        {
+          "title": "Languages",
+          "score": 0.599
+        }
+      ],
+      "at045": [
+        {
+          "title": "AI / GenAI",
+          "score": 0.793
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.764
+        },
+        {
+          "title": "Languages",
+          "score": 0.599
+        }
+      ],
+      "estContextTokensAt035": 439
+    },
+    {
+      "query": "What DevOps and cloud skills does Hrishikesh have?",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.7289958545846591,
+      "topTitle": "Cloud & DevOps",
+      "at035": [
+        {
+          "title": "Cloud & DevOps",
+          "score": 0.729
+        },
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.688
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.617
+        }
+      ],
+      "at045": [
+        {
+          "title": "Cloud & DevOps",
+          "score": 0.729
+        },
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.688
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.617
+        }
+      ],
+      "estContextTokensAt035": 461
+    },
+    {
+      "query": "Tell me about the ticketing system web app",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.7769694739471061,
+      "topTitle": "Ticketing System Web App",
+      "at035": [
+        {
+          "title": "Ticketing System Web App",
+          "score": 0.777
+        },
+        {
+          "title": "Ticketing System Web App",
+          "score": 0.743
+        },
+        {
+          "title": "Run2Feed Marathon Platform",
+          "score": 0.637
+        }
+      ],
+      "at045": [
+        {
+          "title": "Ticketing System Web App",
+          "score": 0.777
+        },
+        {
+          "title": "Ticketing System Web App",
+          "score": 0.743
+        },
+        {
+          "title": "Run2Feed Marathon Platform",
+          "score": 0.637
+        }
+      ],
+      "estContextTokensAt035": 232
+    },
+    {
+      "query": "What awards has Hrishikesh received?",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.5021757602158562,
+      "topTitle": "Education",
+      "at035": [
+        {
+          "title": "Education",
+          "score": 0.502
+        },
+        {
+          "title": "Awards & Achievements",
+          "score": 0.501
+        },
+        {
+          "title": "Awards & Achievements",
+          "score": 0.496
+        }
+      ],
+      "at045": [
+        {
+          "title": "Education",
+          "score": 0.502
+        },
+        {
+          "title": "Awards & Achievements",
+          "score": 0.501
+        },
+        {
+          "title": "Awards & Achievements",
+          "score": 0.496
+        }
+      ],
+      "estContextTokensAt035": 171
+    },
+    {
+      "query": "Where did Hrishikesh study and what degree?",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.5079859718071777,
+      "topTitle": "Education",
+      "at035": [
+        {
+          "title": "Education",
+          "score": 0.508
+        },
+        {
+          "title": "Languages",
+          "score": 0.474
+        },
+        {
+          "title": "Languages",
+          "score": 0.474
+        }
+      ],
+      "at045": [
+        {
+          "title": "Education",
+          "score": 0.508
+        },
+        {
+          "title": "Languages",
+          "score": 0.474
+        },
+        {
+          "title": "Languages",
+          "score": 0.474
+        }
+      ],
+      "estContextTokensAt035": 81
+    },
+    {
+      "query": "Explain the RAG pipeline Hrishikesh architected",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.6558085559742322,
+      "topTitle": "AI / GenAI",
+      "at035": [
+        {
+          "title": "AI / GenAI",
+          "score": 0.656
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.638
+        },
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.613
+        }
+      ],
+      "at045": [
+        {
+          "title": "AI / GenAI",
+          "score": 0.656
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.638
+        },
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.613
+        }
+      ],
+      "estContextTokensAt035": 460
+    },
+    {
+      "query": "What fintech modules did Hrishikesh deliver?",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.6235352053490413,
+      "topTitle": "Tools, Platforms & Databases",
+      "at035": [
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.624
+        },
+        {
+          "title": "Frameworks & Libraries",
+          "score": 0.622
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.621
+        }
+      ],
+      "at045": [
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.624
+        },
+        {
+          "title": "Frameworks & Libraries",
+          "score": 0.622
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.621
+        }
+      ],
+      "estContextTokensAt035": 446
+    },
+    {
+      "query": "What is Hrishikesh GenAI and LLM experience?",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.6024420259440465,
+      "topTitle": "AI / GenAI",
+      "at035": [
+        {
+          "title": "AI / GenAI",
+          "score": 0.602
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.548
+        },
+        {
+          "title": "Education",
+          "score": 0.529
+        }
+      ],
+      "at045": [
+        {
+          "title": "AI / GenAI",
+          "score": 0.602
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.548
+        },
+        {
+          "title": "Education",
+          "score": 0.529
+        }
+      ],
+      "estContextTokensAt035": 452
+    },
+    {
+      "query": "Does Hrishikesh know Docker and CI/CD?",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.7001909084504628,
+      "topTitle": "Tools, Platforms & Databases",
+      "at035": [
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.7
+        },
+        {
+          "title": "Cloud & DevOps",
+          "score": 0.662
+        },
+        {
+          "title": "Frameworks & Libraries",
+          "score": 0.627
+        }
+      ],
+      "at045": [
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.7
+        },
+        {
+          "title": "Cloud & DevOps",
+          "score": 0.662
+        },
+        {
+          "title": "Frameworks & Libraries",
+          "score": 0.627
+        }
+      ],
+      "estContextTokensAt035": 124
+    },
+    {
+      "query": "What databases has Hrishikesh worked with?",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.6850288716503089,
+      "topTitle": "Tools, Platforms & Databases",
+      "at035": [
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.685
+        },
+        {
+          "title": "Frameworks & Libraries",
+          "score": 0.623
+        },
+        {
+          "title": "Cloud & DevOps",
+          "score": 0.613
+        }
+      ],
+      "at045": [
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.685
+        },
+        {
+          "title": "Frameworks & Libraries",
+          "score": 0.623
+        },
+        {
+          "title": "Cloud & DevOps",
+          "score": 0.613
+        }
+      ],
+      "estContextTokensAt035": 124
+    },
+    {
+      "query": "Tell me about the AI Scrum assistant using Ollama",
+      "category": "resume",
+      "skipped": false,
+      "topScore": 0.7702780947889185,
+      "topTitle": "AI / GenAI",
+      "at035": [
+        {
+          "title": "AI / GenAI",
+          "score": 0.77
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.737
+        },
+        {
+          "title": "Cloud & DevOps",
+          "score": 0.637
+        }
+      ],
+      "at045": [
+        {
+          "title": "AI / GenAI",
+          "score": 0.77
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.737
+        },
+        {
+          "title": "Cloud & DevOps",
+          "score": 0.637
+        }
+      ],
+      "estContextTokensAt035": 464
+    },
+    {
+      "query": "How do I bake a chocolate cake from scratch?",
+      "category": "off-topic",
+      "skipped": false,
+      "topScore": 0.39719953220560866,
+      "topTitle": "Languages",
+      "at035": [
+        {
+          "title": "Languages",
+          "score": 0.397
+        },
+        {
+          "title": "Languages",
+          "score": 0.397
+        },
+        {
+          "title": "AI / GenAI",
+          "score": 0.394
+        }
+      ],
+      "at045": [],
+      "estContextTokensAt035": 92
+    },
+    {
+      "query": "What is the capital of France?",
+      "category": "off-topic",
+      "skipped": false,
+      "topScore": 0.4584610771871071,
+      "topTitle": "Languages",
+      "at035": [
+        {
+          "title": "Languages",
+          "score": 0.458
+        },
+        {
+          "title": "Languages",
+          "score": 0.458
+        },
+        {
+          "title": "Modern Business Website",
+          "score": 0.444
+        }
+      ],
+      "at045": [
+        {
+          "title": "Languages",
+          "score": 0.458
+        },
+        {
+          "title": "Languages",
+          "score": 0.458
+        }
+      ],
+      "estContextTokensAt035": 103
+    },
+    {
+      "query": "Who won the FIFA World Cup in 2022?",
+      "category": "off-topic",
+      "skipped": false,
+      "topScore": 0.550862535432187,
+      "topTitle": "Education",
+      "at035": [
+        {
+          "title": "Education",
+          "score": 0.551
+        },
+        {
+          "title": "Awards & Achievements",
+          "score": 0.487
+        },
+        {
+          "title": "Awards & Achievements",
+          "score": 0.482
+        }
+      ],
+      "at045": [
+        {
+          "title": "Education",
+          "score": 0.551
+        },
+        {
+          "title": "Awards & Achievements",
+          "score": 0.487
+        },
+        {
+          "title": "Awards & Achievements",
+          "score": 0.482
+        }
+      ],
+      "estContextTokensAt035": 171
+    },
+    {
+      "query": "How do I learn Python programming as a beginner?",
+      "category": "off-topic",
+      "skipped": false,
+      "topScore": 0.5730580400234774,
+      "topTitle": "Languages",
+      "at035": [
+        {
+          "title": "Languages",
+          "score": 0.573
+        },
+        {
+          "title": "Languages",
+          "score": 0.573
+        },
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.499
+        }
+      ],
+      "at045": [
+        {
+          "title": "Languages",
+          "score": 0.573
+        },
+        {
+          "title": "Languages",
+          "score": 0.573
+        },
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.499
+        }
+      ],
+      "estContextTokensAt035": 89
+    },
+    {
+      "query": "What is the weather like in Tokyo today?",
+      "category": "off-topic",
+      "skipped": false,
+      "topScore": 0.4410406867459281,
+      "topTitle": "Modern Business Website",
+      "at035": [
+        {
+          "title": "Modern Business Website",
+          "score": 0.441
+        },
+        {
+          "title": "Education",
+          "score": 0.425
+        },
+        {
+          "title": "Languages",
+          "score": 0.418
+        }
+      ],
+      "at045": [],
+      "estContextTokensAt035": 116
+    },
+    {
+      "query": "Tell me a joke about programming cats",
+      "category": "off-topic",
+      "skipped": false,
+      "topScore": 0.5919197501856165,
+      "topTitle": "Languages",
+      "at035": [
+        {
+          "title": "Languages",
+          "score": 0.592
+        },
+        {
+          "title": "Languages",
+          "score": 0.592
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.568
+        }
+      ],
+      "at045": [
+        {
+          "title": "Languages",
+          "score": 0.592
+        },
+        {
+          "title": "Languages",
+          "score": 0.592
+        },
+        {
+          "title": "Full Stack Software Developer, Candent Technologies Pvt Ltd -- Pune, IN",
+          "score": 0.568
+        }
+      ],
+      "estContextTokensAt035": 415
+    },
+    {
+      "query": "How do I fix a flat tire on my car?",
+      "category": "off-topic",
+      "skipped": false,
+      "topScore": 0.4157992368748181,
+      "topTitle": "Cloud & DevOps",
+      "at035": [
+        {
+          "title": "Cloud & DevOps",
+          "score": 0.416
+        },
+        {
+          "title": "Tools, Platforms & Databases",
+          "score": 0.406
+        },
+        {
+          "title": "AI / GenAI",
+          "score": 0.395
+        }
+      ],
+      "at045": [],
+      "estContextTokensAt035": 137
+    },
+    {
+      "query": "What are the best stocks to buy in 2026?",
+      "category": "off-topic",
+      "skipped": false,
+      "topScore": 0.5028423622060701,
+      "topTitle": "Modern Business Website",
+      "at035": [
+        {
+          "title": "Modern Business Website",
+          "score": 0.503
+        },
+        {
+          "title": "Modern Business Website",
+          "score": 0.49
+        },
+        {
+          "title": "Education",
+          "score": 0.479
+        }
+      ],
+      "at045": [
+        {
+          "title": "Modern Business Website",
+          "score": 0.503
+        },
+        {
+          "title": "Modern Business Website",
+          "score": 0.49
+        },
+        {
+          "title": "Education",
+          "score": 0.479
+        }
+      ],
+      "estContextTokensAt035": 151
+    },
+    {
+      "query": "hi",
+      "category": "skip",
+      "skipped": true,
+      "topScore": null,
+      "topTitle": null,
+      "at035": [],
+      "at045": [],
+      "estContextTokensAt035": 0
+    },
+    {
+      "query": "hello",
+      "category": "skip",
+      "skipped": true,
+      "topScore": null,
+      "topTitle": null,
+      "at035": [],
+      "at045": [],
+      "estContextTokensAt035": 0
+    },
+    {
+      "query": "thanks",
+      "category": "skip",
+      "skipped": true,
+      "topScore": null,
+      "topTitle": null,
+      "at035": [],
+      "at045": [],
+      "estContextTokensAt035": 0
+    },
+    {
+      "query": "good morning",
+      "category": "skip",
+      "skipped": true,
+      "topScore": null,
+      "topTitle": null,
+      "at035": [],
+      "at045": [],
+      "estContextTokensAt035": 0
+    },
+    {
+      "query": "who is hrishikesh?",
+      "category": "static-cache",
+      "skipped": false,
+      "topScore": null,
+      "topTitle": null,
+      "at035": [],
+      "at045": [],
+      "estContextTokensAt035": 0
+    },
+    {
+      "query": "tell me about run2feed",
+      "category": "static-cache",
+      "skipped": false,
+      "topScore": null,
+      "topTitle": null,
+      "at035": [],
+      "at045": [],
+      "estContextTokensAt035": 0
+    }
+  ],
+  "tokenMeasuredAt": "2026-06-15T07:27:53.915Z",
+  "liveLogAnalysis": {
+    "parsedAt": "2026-06-15T07:31:57.992Z",
+    "logPath": "/home/hrishikesh/.cursor/projects/home-hrishikesh-Documents-AntiGravity-Projects-portfolio-app/terminals/937056.txt",
+    "totalRequests": 28,
+    "successfulLlm": 27,
+    "rateLimited": 1,
+    "avgPromptTokensWithRag": 687,
+    "avgPromptTokensNoRag": 414,
+    "avgTotalTokensWithRag": 757,
+    "sessions": [
+      {
+        "query": "What AI projects has Hrishikesh built?",
+        "rag": "Injected 3 chunks (scores: 0.673, 0.662, 0.624)",
+        "promptTokens": 831,
+        "completionTokens": 86,
+        "totalTokens": 917,
+        "latencyMs": 1342,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "Tell me about the Run2Feed marathon platform",
+        "rag": "Injected 3 chunks (scores: 0.842, 0.819, 0.605)",
+        "promptTokens": 691,
+        "completionTokens": 80,
+        "totalTokens": 771,
+        "latencyMs": 643,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "What is Hrishikesh experience at Candent Technologies?",
+        "rag": "Injected 3 chunks (scores: 0.705, 0.703, 0.685)",
+        "promptTokens": 805,
+        "completionTokens": 79,
+        "totalTokens": 884,
+        "latencyMs": 891,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "What technologies does Hrishikesh use?",
+        "rag": "Injected 3 chunks (scores: 0.580, 0.572, 0.552)",
+        "promptTokens": 589,
+        "completionTokens": 84,
+        "totalTokens": 673,
+        "latencyMs": 725,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "Describe the multi-agent AI chatbot project",
+        "rag": "Injected 3 chunks (scores: 0.793, 0.764, 0.599)",
+        "promptTokens": 807,
+        "completionTokens": 66,
+        "totalTokens": 873,
+        "latencyMs": 1067,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "What DevOps and cloud skills does Hrishikesh have?",
+        "rag": "Injected 3 chunks (scores: 0.729, 0.688, 0.617)",
+        "promptTokens": 838,
+        "completionTokens": 101,
+        "totalTokens": 939,
+        "latencyMs": 922,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "Tell me about the ticketing system web app",
+        "rag": "Injected 3 chunks (scores: 0.777, 0.743, 0.637)",
+        "promptTokens": 689,
+        "completionTokens": 85,
+        "totalTokens": 774,
+        "latencyMs": 665,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "What awards has Hrishikesh received?",
+        "rag": "Injected 3 chunks (scores: 0.502, 0.501, 0.496)",
+        "promptTokens": 602,
+        "completionTokens": 42,
+        "totalTokens": 644,
+        "latencyMs": 649,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "Where did Hrishikesh study and what degree?",
+        "rag": "Injected 3 chunks (scores: 0.508, 0.474, 0.474)",
+        "promptTokens": 556,
+        "completionTokens": 51,
+        "totalTokens": 607,
+        "latencyMs": 770,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "Explain the RAG pipeline Hrishikesh architected",
+        "rag": "Injected 3 chunks (scores: 0.656, 0.638, 0.613)",
+        "promptTokens": 0,
+        "completionTokens": 0,
+        "totalTokens": 0,
+        "latencyMs": 1,
+        "providerStatus": "rejected",
+        "errorReason": "Rate limit exceeded"
+      },
+      {
+        "query": "Explain the RAG pipeline Hrishikesh architected",
+        "rag": "Injected 3 chunks (scores: 0.656, 0.638, 0.613)",
+        "promptTokens": 832,
+        "completionTokens": 57,
+        "totalTokens": 889,
+        "latencyMs": 928,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "What fintech modules did Hrishikesh deliver?",
+        "rag": "Injected 3 chunks (scores: 0.624, 0.622, 0.621)",
+        "promptTokens": 815,
+        "completionTokens": 39,
+        "totalTokens": 854,
+        "latencyMs": 739,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "What is Hrishikesh GenAI and LLM experience?",
+        "rag": "Injected 3 chunks (scores: 0.602, 0.548, 0.529)",
+        "promptTokens": 833,
+        "completionTokens": 145,
+        "totalTokens": 978,
+        "latencyMs": 1217,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "Does Hrishikesh know Docker and CI/CD?",
+        "rag": "Injected 3 chunks (scores: 0.700, 0.662, 0.627)",
+        "promptTokens": 594,
+        "completionTokens": 58,
+        "totalTokens": 652,
+        "latencyMs": 1144,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "What databases has Hrishikesh worked with?",
+        "rag": "Injected 3 chunks (scores: 0.685, 0.623, 0.613)",
+        "promptTokens": 593,
+        "completionTokens": 41,
+        "totalTokens": 634,
+        "latencyMs": 838,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "Tell me about the AI Scrum assistant using Ollama",
+        "rag": "Injected 3 chunks (scores: 0.770, 0.737, 0.637)",
+        "promptTokens": 839,
+        "completionTokens": 65,
+        "totalTokens": 904,
+        "latencyMs": 1005,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "How do I bake a chocolate cake from scratch?",
+        "rag": "Injected 3 chunks (scores: 0.397, 0.397, 0.394)",
+        "promptTokens": 559,
+        "completionTokens": 70,
+        "totalTokens": 629,
+        "latencyMs": 1255,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "What is the capital of France?",
+        "rag": "Injected 3 chunks (scores: 0.458, 0.458, 0.444)",
+        "promptTokens": 557,
+        "completionTokens": 61,
+        "totalTokens": 618,
+        "latencyMs": 1540,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "Who won the FIFA World Cup in 2022?",
+        "rag": "Injected 3 chunks (scores: 0.551, 0.487, 0.482)",
+        "promptTokens": 604,
+        "completionTokens": 75,
+        "totalTokens": 679,
+        "latencyMs": 838,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "How do I learn Python programming as a beginner?",
+        "rag": "Injected 3 chunks (scores: 0.573, 0.573, 0.499)",
+        "promptTokens": 555,
+        "completionTokens": 74,
+        "totalTokens": 629,
+        "latencyMs": 1200,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "What is the weather like in Tokyo today?",
+        "rag": "Injected 3 chunks (scores: 0.441, 0.425, 0.418)",
+        "promptTokens": 580,
+        "completionTokens": 63,
+        "totalTokens": 643,
+        "latencyMs": 845,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "Tell me a joke about programming cats",
+        "rag": "Injected 3 chunks (scores: 0.592, 0.592, 0.568)",
+        "promptTokens": 782,
+        "completionTokens": 35,
+        "totalTokens": 817,
+        "latencyMs": 1145,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "How do I fix a flat tire on my car?",
+        "rag": "Injected 3 chunks (scores: 0.416, 0.406, 0.395)",
+        "promptTokens": 610,
+        "completionTokens": 86,
+        "totalTokens": 696,
+        "latencyMs": 1878,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "What are the best stocks to buy in 2026?",
+        "rag": "Injected 3 chunks (scores: 0.503, 0.490, 0.479)",
+        "promptTokens": 640,
+        "completionTokens": 58,
+        "totalTokens": 698,
+        "latencyMs": 1063,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "hi",
+        "rag": "Skipped: query too short or greeting",
+        "promptTokens": 414,
+        "completionTokens": 42,
+        "totalTokens": 456,
+        "latencyMs": 368,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "hello",
+        "rag": "Skipped: query too short or greeting",
+        "promptTokens": 414,
+        "completionTokens": 38,
+        "totalTokens": 452,
+        "latencyMs": 401,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "thanks",
+        "rag": "Skipped: query too short or greeting",
+        "promptTokens": 414,
+        "completionTokens": 27,
+        "totalTokens": 441,
+        "latencyMs": 650,
+        "providerStatus": "success",
+        "errorReason": null
+      },
+      {
+        "query": "good morning",
+        "rag": "Skipped: query too short or greeting",
+        "promptTokens": 415,
+        "completionTokens": 48,
+        "totalTokens": 463,
+        "latencyMs": 335,
+        "providerStatus": "success",
+        "errorReason": null
+      }
+    ]
+  }
+}

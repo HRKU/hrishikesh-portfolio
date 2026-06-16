@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import Groq from 'groq-sdk';
 import { logRequest, generateRequestId, runSecurityChecks, updateUsage } from './utils/logger';
-import { getChatCompletion } from './utils/modelSelector';
+import { getChatCompletionStream } from './utils/modelSelector';
 import { getCachedAnswer, setCachedAnswer, cleanCache } from './utils/cache';
+import { retrieveContext } from './utils/rag';
 
 // ─── Module-level singletons (avoid re-creating on every request) ─────────────
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -51,10 +52,34 @@ CRITICAL GUARDRAILS:
 Keep your answers short (1-3 sentences) unless asked for details.
 `;
 
+const STREAM_HEADERS = {
+  'Content-Type': 'text/plain; charset=utf-8',
+  'Cache-Control': 'no-cache, no-transform',
+  'X-Content-Type-Options': 'nosniff',
+};
+
 // ─── In-memory rate limiter ────────────────────────────────────────────────────
 const rateLimitMap = new Map();
 const RATE_LIMIT = 10;
 const TIME_WINDOW_MS = 60 * 1000;
+const MAX_MESSAGES = 10;
+const MAX_MESSAGE_CHARS = 2000;
+
+function sanitizeMessages(rawMessages) {
+  const sanitized = [];
+
+  for (const message of rawMessages.slice(-MAX_MESSAGES)) {
+    if (!message || typeof message.content !== 'string') continue;
+    if (message.role !== 'user' && message.role !== 'assistant') continue;
+
+    const content = message.content.trim().slice(0, MAX_MESSAGE_CHARS);
+    if (!content) continue;
+
+    sanitized.push({ role: message.role, content });
+  }
+
+  return sanitized;
+}
 
 function checkRateLimit(ip, now) {
   const entry = rateLimitMap.get(ip);
@@ -74,6 +99,90 @@ function evictStaleRateLimitEntries(now) {
   for (const [ip, entry] of rateLimitMap) {
     if (now - entry.startTime > TIME_WINDOW_MS) rateLimitMap.delete(ip);
   }
+}
+
+function createTextStreamResponse(text) {
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    start(controller) {
+      controller.enqueue(encoder.encode(text));
+      controller.close();
+    },
+  });
+
+  return new Response(stream, { headers: STREAM_HEADERS });
+}
+
+function createGroqStreamResponse({
+  stream,
+  requestId,
+  ip,
+  modelUsed,
+  fallback,
+  providerStatus,
+  startTime,
+}) {
+  const encoder = new TextEncoder();
+  let usage = null;
+
+  const responseStream = new ReadableStream({
+    async start(controller) {
+      try {
+        for await (const chunk of stream) {
+          const token = chunk?.choices?.[0]?.delta?.content ?? '';
+          if (token) {
+            controller.enqueue(encoder.encode(token));
+          }
+
+          if (chunk?.x_groq?.usage) {
+            usage = chunk.x_groq.usage;
+          }
+        }
+
+        const latencyMs = Date.now() - startTime;
+        logRequest({
+          requestId,
+          ip,
+          model: modelUsed,
+          promptTokens: usage?.prompt_tokens ?? 0,
+          completionTokens: usage?.completion_tokens ?? 0,
+          totalTokens: usage?.total_tokens ?? 0,
+          latencyMs,
+          fallback,
+          errorReason: null,
+          providerStatus: providerStatus || 'success',
+          providerModel: modelUsed,
+          cacheHit: false,
+          securityTriggered: false,
+          securityReason: null,
+        });
+        updateUsage({ totalTokens: usage?.total_tokens ?? 0, fallback });
+        controller.close();
+      } catch (error) {
+        const latencyMs = Date.now() - startTime;
+        logRequest({
+          requestId,
+          ip,
+          model: modelUsed || 'unknown',
+          promptTokens: 0,
+          completionTokens: 0,
+          totalTokens: 0,
+          latencyMs,
+          fallback: false,
+          errorReason: error.message,
+          providerStatus: 'error',
+          providerModel: modelUsed || null,
+          cacheHit: false,
+          securityTriggered: false,
+          securityReason: null,
+        });
+        updateUsage({ totalTokens: 0, fallback: false });
+        controller.error(error);
+      }
+    },
+  });
+
+  return new Response(responseStream, { headers: STREAM_HEADERS });
 }
 
 // ─── Route handler ─────────────────────────────────────────────────────────────
@@ -157,9 +266,26 @@ export async function POST(req) {
       return NextResponse.json({ error: 'messages must be a non-empty array.' }, { status: 400 });
     }
 
-    // Truncate to last 10 messages for token control
-    const truncatedMessages = messages.slice(-10);
-    const userPrompt = truncatedMessages.at(-1)?.content?.trim() ?? '';
+    const truncatedMessages = sanitizeMessages(messages);
+    if (truncatedMessages.length === 0 || truncatedMessages.at(-1)?.role !== 'user') {
+      const latencyMs = Date.now() - startTime;
+      logRequest({
+        requestId,
+        ip,
+        model: 'validator',
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0,
+        latencyMs,
+        fallback: false,
+        errorReason: 'last message must be a non-empty user message',
+        providerStatus: 'rejected',
+        cacheHit: false,
+      });
+      return NextResponse.json({ error: 'Last message must be a non-empty user message.' }, { status: 400 });
+    }
+
+    const userPrompt = truncatedMessages.at(-1).content;
 
     console.log('[CHATBOT REQUEST]', JSON.stringify({
       requestId,
@@ -170,6 +296,8 @@ export async function POST(req) {
     }));
 
     // --- 4. Security checks (PII, prompt injection, SQL injection) ---
+    // Only the latest user message can block a request — scanning full history
+    // caused false blocks when an earlier turn contained words like "create".
     const securityCheck = runSecurityChecks(userPrompt);
     if (securityCheck.triggered) {
       const latencyMs = Date.now() - startTime;
@@ -216,40 +344,38 @@ export async function POST(req) {
         cacheHit: true,
       });
       updateUsage({ totalTokens: 0, fallback: false });
-      return NextResponse.json({ reply: cachedReply });
+      return createTextStreamResponse(cachedReply);
     }
 
-    // --- 6. LLM call with model fallback ---
-    const { response: chatCompletion, modelUsed, fallback, providerStatus } = await getChatCompletion(
+    // --- 6. RAG context retrieval ---
+    let systemPromptWithContext = SYSTEM_PROMPT;
+    try {
+      const { context, chunks, error } = await retrieveContext(userPrompt);
+      if (context) {
+        systemPromptWithContext += `\n\nRELEVANT RESUME CONTEXT (use this to answer accurately):\n${context}\n\nIMPORTANT: Base your answer on the context above. If the context doesn't cover the question, say so honestly.`;
+        console.log(`[RAG] Injected ${chunks.length} chunks (rerank: ${chunks.map(c => c.score.toFixed(3)).join(', ')}, bi: ${chunks.map(c => c.biScore.toFixed(3)).join(', ')})`);
+      } else if (error) {
+        console.warn(`[RAG] Skipped: ${error}`);
+      }
+    } catch (ragErr) {
+      console.warn('[RAG] Non-fatal error:', ragErr.message);
+    }
+
+    // --- 7. LLM call with model fallback ---
+    const { response: chatCompletionStream, modelUsed, fallback, providerStatus } = await getChatCompletionStream(
       groq,
-      [{ role: 'system', content: SYSTEM_PROMPT }, ...truncatedMessages],
+      [{ role: 'system', content: systemPromptWithContext }, ...truncatedMessages],
       MODEL_ORDER
     );
-
-    const reply = chatCompletion.choices[0]?.message?.content?.trim()
-      || "I couldn't generate a response right now. Please try again.";
-    const usage = chatCompletion.usage;
-    const latencyMs = Date.now() - startTime;
-
-    logRequest({
+    return createGroqStreamResponse({
+      stream: chatCompletionStream,
       requestId,
       ip,
-      model: modelUsed,
-      promptTokens: usage?.prompt_tokens ?? 0,
-      completionTokens: usage?.completion_tokens ?? 0,
-      totalTokens: usage?.total_tokens ?? 0,
-      latencyMs,
+      modelUsed,
       fallback,
-      errorReason: null,
-      providerStatus: providerStatus || 'success',
-      providerModel: modelUsed,
-      cacheHit: false,
-      securityTriggered: false,
-      securityReason: null,
+      providerStatus,
+      startTime,
     });
-    updateUsage({ totalTokens: usage?.total_tokens ?? 0, fallback });
-
-    return NextResponse.json({ reply });
 
   } catch (error) {
     const latencyMs = Date.now() - startTime;

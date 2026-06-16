@@ -4,6 +4,8 @@
 **Auditor:** Senior Engineering Review  
 **Status:** ⚠️ **CONDITIONAL - Address Critical Issues Before Deployment**
 
+> **Update (June 15, 2026):** RAG pipeline implemented — resume chunks, offline embeddings, runtime retrieval, and prompt injection are live. See `docs /RAG_PIPELINE.md` and `CHATBOT_NOTES.md`. Remaining audit items (API key rotation, etc.) may still apply.
+
 ---
 
 ## EXECUTIVE SUMMARY
