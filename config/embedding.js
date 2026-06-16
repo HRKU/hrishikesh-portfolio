@@ -5,8 +5,8 @@ export const EMBEDDING_MODEL = 'BAAI/bge-small-en-v1.5';
 export const HF_EMBEDDING_URL =
   `https://router.huggingface.co/hf-inference/models/${EMBEDDING_MODEL}/pipeline/feature-extraction`;
 
-/** Max wait per HF fetch attempt (runtime RAG) */
-export const HF_FETCH_TIMEOUT_MS = 3000;
+/** Max wait per HF fetch attempt (runtime RAG) — 5s for Netlify serverless cold paths */
+export const HF_FETCH_TIMEOUT_MS = 5000;
 
 /** Skip RAG when the query has fewer words than this */
 export const MIN_RAG_QUERY_WORDS = 3;

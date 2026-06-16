@@ -85,22 +85,27 @@ function detectPromptInjection(text) {
 
 /**
  * Detect SQL injection attempts
- * Patterns: common SQL syntax and keywords in suspicious contexts
+ * Uses multi-token SQL syntax only — avoids blocking normal words like "create" or "RAG".
  */
 function detectSQLInjection(text) {
   if (!text || typeof text !== 'string') return { detected: false };
   const lowerText = text.toLowerCase();
-  
-  // SQL injection patterns
+
   const sqlPatterns = [
-    /(\b(?:union|select|insert|update|delete|drop|create|alter|exec|execute)\b[\s\w]*)+/,
-    /['";][\s\w]*(and|or)[\s\w]*['";]/,
+    /\bunion\s+(?:all\s+)?select\b/,
+    /\bselect\s+[\w*,\s]+\s+from\b/,
+    /\binsert\s+into\b/,
+    /\bupdate\s+\w+\s+set\b/,
+    /\bdelete\s+from\b/,
+    /\bdrop\s+(?:table|database|index|schema)\b/,
+    /\bcreate\s+(?:table|database|index|procedure|view)\b/,
+    /\balter\s+table\b/,
+    /['";]\s*(?:or|and)\s+['"\d]/,
     /--\s*(?:union|select|drop)/,
-    /;\s*(?:drop|delete|update|insert)/,
-    /\b(?:union\s+all\s+select|union\s+select|select\s+.*\s+from)\b/,
-    /xp_|sp_.*(?:exec|execute)/,
+    /;\s*(?:drop|delete|update|insert)\b/,
+    /\bxp_\w+|\bsp_\w+/,
   ];
-  
+
   for (const pattern of sqlPatterns) {
     if (pattern.test(lowerText)) {
       return { detected: true, pattern: pattern.source };

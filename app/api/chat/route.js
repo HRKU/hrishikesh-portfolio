@@ -296,32 +296,31 @@ export async function POST(req) {
     }));
 
     // --- 4. Security checks (PII, prompt injection, SQL injection) ---
-    for (const message of truncatedMessages) {
-      if (message.role !== 'user') continue;
-      const securityCheck = runSecurityChecks(message.content);
-      if (securityCheck.triggered) {
-        const latencyMs = Date.now() - startTime;
-        console.warn(`[SECURITY_VIOLATION] requestId: ${requestId}, IP: ${ip}, Reason: ${securityCheck.reason}`);
-        logRequest({
-          requestId,
-          ip,
-          model: 'security',
-          promptTokens: 0,
-          completionTokens: 0,
-          totalTokens: 0,
-          latencyMs,
-          fallback: false,
-          errorReason: 'Security check failed',
-          providerStatus: 'blocked',
-          cacheHit: false,
-          securityTriggered: true,
-          securityReason: securityCheck.reason,
-        });
-        return NextResponse.json(
-          { error: 'Your request was blocked for security reasons. Please try with a different query.' },
-          { status: 403 }
-        );
-      }
+    // Only the latest user message can block a request — scanning full history
+    // caused false blocks when an earlier turn contained words like "create".
+    const securityCheck = runSecurityChecks(userPrompt);
+    if (securityCheck.triggered) {
+      const latencyMs = Date.now() - startTime;
+      console.warn(`[SECURITY_VIOLATION] requestId: ${requestId}, IP: ${ip}, Reason: ${securityCheck.reason}`);
+      logRequest({
+        requestId,
+        ip,
+        model: 'security',
+        promptTokens: 0,
+        completionTokens: 0,
+        totalTokens: 0,
+        latencyMs,
+        fallback: false,
+        errorReason: 'Security check failed',
+        providerStatus: 'blocked',
+        cacheHit: false,
+        securityTriggered: true,
+        securityReason: securityCheck.reason,
+      });
+      return NextResponse.json(
+        { error: 'Your request was blocked for security reasons. Please try with a different query.' },
+        { status: 403 }
+      );
     }
 
     // --- 5. Cache check ---
