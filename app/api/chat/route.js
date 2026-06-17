@@ -4,6 +4,7 @@ import { logRequest, generateRequestId, runSecurityChecks, updateUsage } from '.
 import { getChatCompletionStream } from './utils/modelSelector';
 import { getCachedAnswer, setCachedAnswer, cleanCache } from './utils/cache';
 import { retrieveContext } from './utils/rag';
+import { CONTACT_REPLY } from '../../../config/public-contact.js';
 
 // ─── Module-level singletons (avoid re-creating on every request) ─────────────
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
@@ -26,6 +27,11 @@ const STATIC_ANSWERS = {
     'The stack includes JavaScript/TypeScript, Next.js, React, Node.js, Express, MongoDB, SQL, Azure OpenAI, AutoGen, RAG pipelines, Docker, and CI/CD.',
   'show your projects':
     'Key projects: Run2Feed Marathon Platform, Ticketing System, AI Chatbot with multi‑agent architecture, and several fintech modules.',
+  'how can i contact hrishikesh?': CONTACT_REPLY,
+  'contact information': CONTACT_REPLY,
+  'i have a job opportunity': CONTACT_REPLY,
+  'how do i reach him?': CONTACT_REPLY,
+  'hiring': CONTACT_REPLY,
 };
 
 const SYSTEM_PROMPT = `
@@ -43,6 +49,13 @@ Experience:
 Projects:
 - Run2Feed Marathon Platform: Next.js, Docker, Easebuzz payment.
 - Ticketing System: React, TypeScript, Node.js, MongoDB.
+
+PROFESSIONAL CONTACT (share freely when asked about hiring, jobs, reaching out, or collaboration):
+- Email: ${PUBLIC_CONTACT.email}
+- LinkedIn: ${PUBLIC_CONTACT.linkedin}
+- GitHub: ${PUBLIC_CONTACT.github}
+- Based in ${PUBLIC_CONTACT.location}
+When someone asks how to contact Hrishikesh or mentions a job opportunity, give these details directly — do not say "check the Contact section".
 
 CRITICAL GUARDRAILS:
 1. ONLY answer questions related to Hrishikesh, his professional experience, his tech stack, or his projects.
@@ -189,7 +202,13 @@ function createGroqStreamResponse({
 export async function POST(req) {
   const startTime = Date.now();
   const requestId = generateRequestId();
-  const ip = req.headers.get('x-forwarded-for') || 'anonymous';
+  // x-nf-client-connection-ip is Netlify's trusted real-IP header.
+  // Fall back to the first entry of x-forwarded-for (split to handle proxy chains),
+  // then to 'anonymous' so the rate-limiter still has a consistent key.
+  const ip =
+    req.headers.get('x-nf-client-connection-ip') ||
+    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    'anonymous';
 
   // Guard: API key must be present (fail fast, avoid confusing downstream errors)
   if (!process.env.GROQ_API_KEY) {
@@ -317,6 +336,7 @@ export async function POST(req) {
         securityTriggered: true,
         securityReason: securityCheck.reason,
       });
+      updateUsage({ totalTokens: 0, fallback: false, securityTriggered: true });
       return NextResponse.json(
         { error: 'Your request was blocked for security reasons. Please try with a different query.' },
         { status: 403 }

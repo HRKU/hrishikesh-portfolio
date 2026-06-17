@@ -553,3 +553,38 @@ h2::after {
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ── Navbar ─────────────────────────────────────────────── */
+
+/* Offset anchor scroll so sections don't hide under fixed navbar */
+#experience,
+#projects,
+#contact,
+#skills {
+  scroll-margin-top: 80px;
+}
+
+.navbar-link:hover,
+.navbar-icon-link:hover {
+  color: var(--neon-cyan) !important;
+}
+
+.hero-social-badge:hover {
+  color: var(--neon-cyan) !important;
+  border-color: rgba(0, 240, 255, 0.45) !important;
+  background: rgba(0, 240, 255, 0.07) !important;
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.12) !important;
+}
+
+/* Mobile navbar — show hamburger, hide desktop nav and social icons */
+@media (max-width: 640px) {
+  .navbar-hamburger {
+    display: flex !important;
+  }
+  .navbar-links {
+    display: none !important;
+  }
+  .navbar-socials {
+    display: none !important;
+  }
+}

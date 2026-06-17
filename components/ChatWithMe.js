@@ -4,7 +4,7 @@ import { streamTextAtFrameRate } from './streamTextAtFrameRate';
 
 export default function ChatWithMe() {
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: "Initializing neural link... \n\nHi! I'm the AI representation of Hrishikesh, powered by Groq and Llama 3. Ask me about his tech stack, projects, or experience!" }
+    { id: 'init', role: 'assistant', content: "Initializing neural link... \n\nHi! I'm the AI representation of Hrishikesh, powered by Groq and Llama 3. Ask me about his tech stack, projects, or experience!" }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -22,9 +22,11 @@ export default function ChatWithMe() {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
 
-    const userMessage = { role: 'user', content: input };
+    const msgId = Date.now();
+    const userMessage = { id: `u-${msgId}`, role: 'user', content: input };
+    const assistantPlaceholder = { id: `a-${msgId}`, role: 'assistant', content: '' };
     const assistantIndex = messages.length + 1;
-    const initialMessages = [...messages, userMessage, { role: 'assistant', content: '' }];
+    const initialMessages = [...messages, userMessage, assistantPlaceholder];
     setMessages(initialMessages);
     setInput('');
     setIsLoading(true);
@@ -37,7 +39,7 @@ export default function ChatWithMe() {
       });
 
       if (res.status === 429) {
-        setMessages([...messages, userMessage, { role: 'assistant', content: "Rate limit exceeded. Please wait a moment." }]);
+        setMessages(prev => [...prev.slice(0, -1), { role: 'assistant', content: "Rate limit exceeded. Please wait a moment." }]);
         return;
       }
 
@@ -49,7 +51,7 @@ export default function ChatWithMe() {
         } catch {
           // Keep the generic message if the response is not JSON.
         }
-        setMessages([...messages, userMessage, { role: 'assistant', content: errorMessage }]);
+        setMessages(prev => [...prev.slice(0, -1), { role: 'assistant', content: errorMessage }]);
         return;
       }
 
@@ -84,7 +86,7 @@ export default function ChatWithMe() {
         ))
       );
     } catch {
-      setMessages([...messages, userMessage, { role: 'assistant', content: 'Connection issue. Please check your network and try again.' }]);
+      setMessages(prev => [...prev.slice(0, -1), { role: 'assistant', content: 'Connection issue. Please check your network and try again.' }]);
     } finally {
       setIsLoading(false);
     }
@@ -138,7 +140,7 @@ export default function ChatWithMe() {
             fontSize: 'clamp(0.82rem, 2.4vw, 1rem)'
           }}>
             {messages.map((msg, idx) => (
-              <div key={idx} style={{ 
+              <div key={msg.id ?? idx} style={{ 
                 alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
                 maxWidth: 'min(85%, 620px)'
               }}>

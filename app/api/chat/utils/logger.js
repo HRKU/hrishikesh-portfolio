@@ -27,16 +27,11 @@ export function generateRequestId() {
 function detectPII(text) {
   if (!text || typeof text !== 'string') return { detected: false };
   const lowerText = text.toLowerCase();
-  
-  // Email pattern
-  const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
-  if (emailPattern.test(text)) {
-    return { detected: true, type: 'email' };
-  }
-  
-  // Phone pattern (common formats: +1234567890, (123) 456-7890, 123-456-7890)
-  const phonePattern = /(\+?\d{1,3}[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}|(\+\d{1,3}\s?)?\d{10,}/;
-  if (phonePattern.test(text.replace(/\s/g, ''))) {
+
+  // Phone pattern — structured formats only; bare \d{10,} removed to avoid
+  // false positives on version numbers, timestamps, and similar long digit strings.
+  const phonePattern = /(\+?\d{1,3}[-.\s])?\(?\d{3}\)?[-.\s]\d{3}[-.\s]\d{4}/;
+  if (phonePattern.test(text)) {
     return { detected: true, type: 'phone' };
   }
   
@@ -214,11 +209,12 @@ export function logRequest({
  * Update in-memory daily usage counters.
  * Counters reset automatically at UTC midnight.
  */
-export function updateUsage({ totalTokens = 0, fallback = false }) {
+export function updateUsage({ totalTokens = 0, fallback = false, securityTriggered = false }) {
   resetIfNewDay();
   dailyUsage.dailyRequests += 1;
   dailyUsage.dailyTokens += totalTokens;
   if (fallback) dailyUsage.fallbackCount += 1;
+  if (securityTriggered) dailyUsage.securityTriggeredCount += 1;
 }
 
 /**

@@ -6,6 +6,7 @@ import { streamTextAtFrameRate } from './streamTextAtFrameRate';
 
 // Defined outside component so it's not recreated on every render
 const INITIAL_MESSAGE = {
+  id: 'init',
   role: 'assistant',
   content: "Hi! I'm the AI representation of Hrishikesh. I can answer questions about his experience, tech stack, and why he'd be a great fit for your team!"
 };
@@ -21,7 +22,8 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
   const starterQuestions = [
     "Why should we hire Hrishikesh?",
     "What is his core tech stack?",
-    "Tell me about his AI experience."
+    "Tell me about his AI experience.",
+    "How can I contact Hrishikesh?",
   ];
 
   const scrollToBottom = () => {
@@ -41,9 +43,11 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
   const sendMessage = async (text) => {
     if (!text.trim() || isLoading) return;
 
-    const userMessage = { role: 'user', content: text };
+    const msgId = Date.now();
+    const userMessage = { id: `u-${msgId}`, role: 'user', content: text };
+    const assistantPlaceholder = { id: `a-${msgId}`, role: 'assistant', content: '' };
     const assistantIndex = messages.length + 1;
-    const initialMessages = [...messages, userMessage, { role: 'assistant', content: '' }];
+    const initialMessages = [...messages, userMessage, assistantPlaceholder];
     setMessages(initialMessages);
     setInput('');
     setIsLoading(true);
@@ -57,7 +61,7 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
       });
 
       if (res.status === 429) {
-        setMessages([...messages, userMessage, { role: 'assistant', content: "I'm getting too many requests right now. Please wait a moment before trying again." }]);
+        setMessages(prev => [...prev.slice(0, -1), { role: 'assistant', content: "I'm getting too many requests right now. Please wait a moment before trying again." }]);
         return;
       }
 
@@ -69,7 +73,7 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
         } catch {
           // Keep the generic message if the response is not JSON.
         }
-        setMessages([...messages, userMessage, { role: 'assistant', content: errorMessage }]);
+        setMessages(prev => [...prev.slice(0, -1), { role: 'assistant', content: errorMessage }]);
         return;
       }
 
@@ -105,7 +109,7 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
       );
     } catch {
       // Don't expose raw error messages — they can contain server internals
-      setMessages([...messages, userMessage, { role: 'assistant', content: "Connection issue. Please check your network and try again." }]);
+      setMessages(prev => [...prev.slice(0, -1), { role: 'assistant', content: "Connection issue. Please check your network and try again." }]);
     } finally {
       setIsLoading(false);
     }
@@ -176,7 +180,7 @@ export default function FloatingChat({ isOpen, setIsOpen }) {
         {/* Chat Window */}
         <div className="chat-scroll-area">
           {messages.map((msg, idx) => (
-            <div key={idx} style={{ 
+            <div key={msg.id ?? idx} style={{ 
               alignSelf: msg.role === 'user' ? 'flex-end' : 'flex-start',
               maxWidth: '90%'
             }}>

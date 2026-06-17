@@ -1,5 +1,7 @@
 import './globals.css'
 import TechBackground from '@/components/TechBackground';
+import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export const metadata = {
   title: 'Hrishikesh Upadhyaya | Full Stack & AI Developer',
@@ -12,7 +14,9 @@ export default function RootLayout({ children }) {
       <body>
         <TechBackground />
         <div style={{ position: 'relative', zIndex: 1 }}>
+          <Navbar />
           {children}
+          <Footer />
         </div>
       </body>
     </html>
