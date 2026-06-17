@@ -4,7 +4,7 @@ import { logRequest, generateRequestId, runSecurityChecks, updateUsage } from '.
 import { getChatCompletionStream } from './utils/modelSelector';
 import { getCachedAnswer, setCachedAnswer, cleanCache } from './utils/cache';
 import { retrieveContext } from './utils/rag';
-import { CONTACT_REPLY } from '../../../config/public-contact.js';
+import { PUBLIC_CONTACT, CONTACT_REPLY } from '../../../config/public-contact.js';
 
 // ─── Module-level singletons (avoid re-creating on every request) ─────────────
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
