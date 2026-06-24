@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { Bot, Globe, Wrench, Shield, Cpu, Layers } from 'lucide-react';
+import { Bot, Globe, Wrench, Shield } from 'lucide-react';
+import CardSlider, { CardSliderSlide } from './CardSlider';
 
 const CATEGORIES = ['All', 'AI / LLM', 'Full Stack', 'Internal Tools', 'Enterprise'];
 
@@ -54,11 +55,11 @@ const TECH_COLORS = {
 
 const projects = [
   {
-    title: 'AI Scrum Assistant',
-    category: 'AI / LLM',
-    description: 'Self-hosted LLM-powered Scrum assistant integrated into team collaboration channels for sprint planning, standups, and retrospectives.',
-    tech: ['Ollama', 'Node.js', 'Teams', 'Discord'],
-    metrics: ['Teams + Discord', 'Locally-hosted LLM', 'Real-time updates'],
+    title: 'Cybersecurity AI Platform',
+    category: 'Enterprise',
+    description: 'End-to-end enterprise cybersecurity platform built on Azure. A multi-agent AI chatbot (AutoGen + GPT-4o) queries a RAG pipeline backed by Azure AI Search to answer security queries over proprietary knowledge bases. Paired with a Python infrastructure scanner, a Next.js analyst dashboard, and fully automated Azure DevOps CI/CD — covering detection, analysis, and triage in one integrated system.',
+    tech: ['AutoGen', 'Azure OpenAI', 'RAG', 'Azure AI Search', 'Python', 'Next.js', 'Azure DevOps', 'CI/CD', 'PowerShell'],
+    metrics: ['Multi-agent orchestration', 'RAG-powered retrieval', 'Infra scanner + dashboard', 'Azure DevOps pipeline'],
   },
   {
     title: 'Portfolio AI Chatbot',
@@ -68,11 +69,19 @@ const projects = [
     metrics: ['Security detection', 'Rate limiting', 'Sub-100ms response'],
   },
   {
+    title: 'AI Scrum Assistant',
+    category: 'AI / LLM',
+    description: 'Self-hosted LLM-powered Scrum assistant integrated into team collaboration channels for sprint planning, standups, and retrospectives.',
+    tech: ['Ollama', 'Node.js', 'Teams', 'Discord'],
+    metrics: ['Teams + Discord', 'Locally-hosted LLM', 'Real-time updates'],
+  },
+  {
     title: 'Run2Feed Marathon Platform',
     category: 'Full Stack',
-    description: 'End-to-end charity marathon platform with participant registration, event management, payment integration, and a full admin dashboard.',
+    badge: 'Volunteer · ISKCON Temple',
+    description: 'End-to-end charity marathon platform built as volunteer work for ISKCON Temple (Pune area), with participant registration, event management, payment integration, and a full admin dashboard.',
     tech: ['Next.js', 'Node.js', 'Docker', 'VPS', 'Easebuzz'],
-    metrics: ['Deployed on VPS', 'Docker + SSL', 'Live payments'],
+    metrics: ['Volunteer · ISKCON Temple', 'Deployed on VPS', 'Docker + SSL', 'Live payments'],
   },
   {
     title: 'Ticketing System',
@@ -115,13 +124,6 @@ const projects = [
     description: 'Suite of 13+ React dashboard modules for a banking client, covering core financial operations, reporting, and customer-facing self-service portals.',
     tech: ['React.js', 'TypeScript', 'REST APIs'],
     metrics: ['13+ UI modules', 'Banking domain', 'Complex data viz'],
-  },
-  {
-    title: 'Cybersecurity AI Platform',
-    category: 'Enterprise',
-    description: 'End-to-end enterprise cybersecurity platform built on Azure. A multi-agent AI chatbot (AutoGen + GPT-4o) queries a RAG pipeline backed by Azure AI Search to answer security queries over proprietary knowledge bases. Paired with a Python infrastructure scanner, a Next.js analyst dashboard, and fully automated Azure DevOps CI/CD — covering detection, analysis, and triage in one integrated system.',
-    tech: ['AutoGen', 'Azure OpenAI', 'RAG', 'Azure AI Search', 'Python', 'Next.js', 'Azure DevOps', 'CI/CD', 'PowerShell'],
-    metrics: ['Multi-agent orchestration', 'RAG-powered retrieval', 'Infra scanner + dashboard', 'Azure DevOps pipeline'],
   },
 ];
 
@@ -200,7 +202,7 @@ function ProjectCard({ project, index }) {
         flexDirection: 'column',
         gap: '1rem',
         position: 'relative',
-        overflow: 'hidden',
+        overflow: 'visible',
         cursor: 'default',
         transition: 'transform 0.3s cubic-bezier(0.22,1,0.36,1), border-color 0.3s ease, box-shadow 0.3s ease',
         transform: hovered ? 'translateY(-6px) scale(1.015)' : visible ? 'translateY(0) scale(1)' : 'translateY(22px) scale(0.98)',
@@ -211,17 +213,17 @@ function ProjectCard({ project, index }) {
         animationDelay: `${index * 60}ms`,
       }}
     >
-      {/* Ambient glow orb */}
+      {/* Ambient glow orb — kept inside slide glow padding */}
       <div style={{
         position: 'absolute',
-        top: '-40px',
-        right: '-40px',
-        width: '120px',
-        height: '120px',
+        top: '-24px',
+        right: '-24px',
+        width: '110px',
+        height: '110px',
         borderRadius: '50%',
         background: meta.color,
-        opacity: hovered ? 0.12 : 0.04,
-        filter: 'blur(40px)',
+        opacity: hovered ? 0.14 : 0.05,
+        filter: 'blur(36px)',
         transition: 'opacity 0.4s ease',
         pointerEvents: 'none',
       }} />
@@ -269,6 +271,12 @@ function ProjectCard({ project, index }) {
       }}>
         {project.title}
       </h3>
+
+      {project.badge && (
+        <span className="project-volunteer-badge" style={{ alignSelf: 'flex-start' }}>
+          {project.badge}
+        </span>
+      )}
 
       {/* Description */}
       <p style={{
@@ -360,12 +368,14 @@ export default function Arsenal() {
         })}
       </div>
 
-      {/* Project grid */}
-      <div className="arsenal-grid">
+      {/* Project slider */}
+      <CardSlider ariaLabel="Technical arsenal project cards">
         {filtered.map((project, idx) => (
-          <ProjectCard key={project.title} project={project} index={idx} />
+          <CardSliderSlide key={project.title}>
+            <ProjectCard project={project} index={idx} />
+          </CardSliderSlide>
         ))}
-      </div>
+      </CardSlider>
     </section>
   );
 }
