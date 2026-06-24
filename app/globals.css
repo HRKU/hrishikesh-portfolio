@@ -340,6 +340,184 @@ h2::after {
   gap: clamp(1rem, 3vw, 1.5rem);
 }
 
+.card-slider {
+  position: relative;
+  margin-left: calc(var(--page-pad) * -1);
+  margin-right: calc(var(--page-pad) * -1);
+  margin-top: calc(var(--slider-glow-pad-y) * -0.7);
+  margin-bottom: calc(var(--slider-glow-pad-bottom) * -0.55);
+  --slider-glow-pad-y: clamp(2.5rem, 5vw, 5rem);
+  --slider-glow-pad-bottom: clamp(3.25rem, 5.5vw, 4rem);
+  --slider-glow-pad-x: 6px;
+}
+
+.card-slider-viewport {
+  position: relative;
+  overflow: visible;
+}
+
+.card-slider-edge {
+  position: absolute;
+  top: calc(var(--slider-glow-pad-y) * -0.7);
+  bottom: calc(var(--slider-glow-pad-bottom) * -0.55);
+  width: clamp(1.25rem, 4vw, 2.75rem);
+  z-index: 1;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.card-slider[data-at-start='true'] .card-slider-edge-left,
+.card-slider[data-at-end='true'] .card-slider-edge-right {
+  opacity: 0;
+}
+
+.card-slider-edge-left {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    var(--bg-color) 0%,
+    rgba(5, 5, 5, 0.5) 55%,
+    transparent 100%
+  );
+}
+
+.card-slider-edge-right {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    var(--bg-color) 0%,
+    rgba(5, 5, 5, 0.5) 55%,
+    transparent 100%
+  );
+}
+
+.card-slider-track {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(1rem, 3vw, 1.25rem);
+  overflow-x: auto;
+  overflow-y: visible;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: var(--page-pad);
+  scroll-padding-right: var(--page-pad);
+  padding: 0 var(--page-pad);
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.card-slider-track::-webkit-scrollbar {
+  display: none;
+}
+
+.card-slider-slide {
+  flex: 0 0 var(--slide-width, min(88vw, 380px));
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  min-width: 0;
+  overflow: visible;
+  padding: var(--slider-glow-pad-y) var(--slider-glow-pad-x) var(--slider-glow-pad-bottom);
+  box-sizing: border-box;
+  transition: opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.card-slider-slide-inner {
+  height: 100%;
+  overflow: visible;
+  transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1), filter 0.4s ease;
+  transform-origin: center center;
+}
+
+.card-slider-slide--focus {
+  opacity: 1;
+}
+
+.card-slider-slide--focus .card-slider-slide-inner {
+  transform: scale(1);
+  filter: none;
+}
+
+.card-slider-slide--peek {
+  opacity: 0.72;
+}
+
+.card-slider-slide--peek .card-slider-slide-inner {
+  transform: scale(0.985);
+  filter: saturate(0.88) brightness(0.92);
+}
+
+.card-slider-slide--ghost {
+  opacity: 0.38;
+}
+
+.card-slider-slide--ghost .card-slider-slide-inner {
+  transform: scale(0.965);
+  filter: saturate(0.75) brightness(0.82);
+}
+
+.card-slider-slide .glass,
+.card-slider-slide .arsenal-card {
+  height: 100%;
+  overflow: visible;
+}
+
+.card-slider-slide .glass:hover {
+  transform: translateY(-5px);
+}
+
+.card-slider-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+}
+
+.card-slider-nav:hover:not(:disabled) {
+  border-color: rgba(0, 240, 255, 0.45);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 14px rgba(0, 240, 255, 0.12);
+}
+
+.card-slider-nav:disabled {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.card-slider-nav-prev {
+  left: max(0.35rem, calc(var(--page-pad) - 0.5rem));
+}
+
+.card-slider-nav-next {
+  right: max(0.35rem, calc(var(--page-pad) - 0.5rem));
+}
+
+.project-volunteer-badge {
+  display: inline-block;
+  margin-bottom: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 240, 255, 0.45);
+  background: rgba(0, 240, 255, 0.07);
+  color: var(--neon-cyan);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
 .filter-row {
   display: flex;
   flex-wrap: wrap;

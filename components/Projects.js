@@ -1,12 +1,14 @@
 import React from 'react';
 import { FolderGit2 } from 'lucide-react';
+import CardSlider, { CardSliderSlide } from './CardSlider';
 
 export default function Projects() {
   const projects = [
     {
       title: 'Run2Feed Marathon Platform',
       tech: 'Next.js, Node.js, Docker, VPS, Easebuzz',
-      description: 'Built and deployed a full-stack charity marathon platform with event management, participant registration, Easebuzz payment integration, and an admin dashboard. Managed Dockerized VPS deployment, domain config, and SSL setup.'
+      badge: 'Volunteer · ISKCON Temple',
+      description: 'Built and deployed a full-stack charity marathon platform as volunteer work for ISKCON Temple (Pune area), with event management, participant registration, Easebuzz payment integration, and an admin dashboard. Managed Dockerized VPS deployment, domain config, and SSL setup.'
     },
     {
       title: 'Ticketing System Web App',
@@ -23,20 +25,25 @@ export default function Projects() {
   return (
     <section id="projects" className="container section">
       <h2>Some Things I've Built</h2>
-      <div className="project-grid">
+      <CardSlider ariaLabel="Some things I've built project cards">
         {projects.map((project, idx) => (
-          <div key={idx} className="glass card-pad" style={{ display: 'flex', flexDirection: 'column' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-              <div style={{ color: 'var(--neon-violet)' }}>
-                <FolderGit2 size={36} />
+          <CardSliderSlide key={idx}>
+            <div className="glass card-pad" style={{ display: 'flex', flexDirection: 'column' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                <div style={{ color: 'var(--neon-violet)' }}>
+                  <FolderGit2 size={36} />
+                </div>
               </div>
+              <h3 style={{ fontSize: '1.5rem', marginBottom: project.badge ? '0.5rem' : '1rem', color: '#fff' }}>{project.title}</h3>
+              {project.badge && (
+                <span className="project-volunteer-badge">{project.badge}</span>
+              )}
+              <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', flexGrow: 1 }}>{project.description}</p>
+              <p style={{ color: 'var(--neon-cyan)', fontSize: '0.9rem', fontFamily: 'monospace', overflowWrap: 'anywhere' }}>{project.tech}</p>
             </div>
-            <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#fff' }}>{project.title}</h3>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', flexGrow: 1 }}>{project.description}</p>
-            <p style={{ color: 'var(--neon-cyan)', fontSize: '0.9rem', fontFamily: 'monospace', overflowWrap: 'anywhere' }}>{project.tech}</p>
-          </div>
+          </CardSliderSlide>
         ))}
-      </div>
+      </CardSlider>
     </section>
   );
 }
